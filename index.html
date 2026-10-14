@@ -1,0 +1,651 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>BESS Grid — capacité d'accueil et opportunités</title>
+<meta name="bess-vault" content="vault.bin">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<style>
+  :root {
+    --bg: #f4f5f7; --card: #fff; --ink: #1b2430; --mute: #667085; --line: #e4e7ec; --accent: #1F3864;
+    --c0: #c92a2a; --c1: #f76707; --c2: #d9a400; --c3: #0b8a3e; --cu: #868e96;
+    --shadow: 0 4px 18px rgba(16,24,40,.16);
+  }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; margin: 0; font: 13px/1.45 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; color: var(--ink); background: var(--bg); }
+  #map { position: fixed; inset: 0; }
+  .base-gray { filter: grayscale(1) brightness(1.1) contrast(.8); }
+  .card { background: var(--card); border-radius: 10px; box-shadow: var(--shadow); }
+  button { font: inherit; cursor: pointer; }
+  .pill { border: 0; background: var(--card); box-shadow: var(--shadow); border-radius: 10px; padding: 9px 14px; color: var(--ink); display: inline-flex; align-items: center; gap: 8px; }
+  .pill:hover { background: #f8f9fb; }
+  .pill.primary { background: var(--accent); color: #fff; }
+  .pill.active { outline: 2px solid var(--accent); }
+
+  /* haut gauche : projets */
+  #topleft { position: fixed; top: 12px; left: 12px; z-index: 1000; display: flex; gap: 8px; }
+  #projects { position: fixed; top: 58px; left: 12px; z-index: 1000; width: 340px; max-height: calc(100vh - 140px); overflow: auto; display: none; padding: 6px 0; }
+  #projects.open { display: block; }
+  #projects h3 { margin: 8px 14px 4px; font-size: 11px; letter-spacing: .06em; text-transform: uppercase; color: var(--mute); }
+  .proj { padding: 10px 14px; border-top: 1px solid var(--line); cursor: pointer; }
+  .proj:hover { background: #f8f9fb; }
+  .proj b { display: block; }
+  .proj small { color: var(--mute); }
+  .empty { padding: 10px 14px; color: var(--mute); }
+
+  /* haut droite : couches */
+  #layers { position: fixed; top: 12px; right: 12px; z-index: 1000; width: 300px; max-height: calc(100vh - 80px); overflow: auto; }
+  #layers > header { display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; cursor: pointer; font-weight: 600; }
+  #layers .body { padding: 0 14px 12px; }
+  #layers.collapsed .body { display: none; }
+  .sec { margin-top: 10px; padding-top: 8px; border-top: 1px solid var(--line); }
+  .sec h4 { margin: 0 0 4px; font-size: 10.5px; letter-spacing: .07em; text-transform: uppercase; color: var(--mute); font-weight: 600; }
+  .sec label { display: flex; align-items: center; gap: 7px; padding: 2px 0; cursor: pointer; }
+  .sec label.dis { color: #aab0ba; cursor: not-allowed; }
+  .sec .note { color: var(--mute); font-size: 11px; font-style: italic; margin: 2px 0 0; }
+  .dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; flex: none; }
+  .ln { display: inline-block; width: 18px; height: 0; flex: none; }
+  .legend { margin: 4px 0 2px 2px; font-size: 11.5px; }
+  .legend div { display: flex; align-items: center; gap: 7px; }
+  .filters { margin: 4px 0 2px 22px; padding: 6px 8px; background: #f8f9fb; border-radius: 8px; display: none; }
+  .filters.open { display: block; }
+  .filters .row { display: flex; align-items: center; gap: 8px; margin: 3px 0; }
+  .filters input[type=range] { flex: 1; }
+  .chip { border: 1px solid var(--line); border-radius: 999px; padding: 1px 9px; background: #fff; font-size: 11.5px; }
+  .chip.on { background: var(--accent); border-color: var(--accent); color: #fff; }
+
+  /* tiroir de détail */
+  #drawer { position: fixed; top: 12px; right: 324px; z-index: 1001; width: 380px; max-height: calc(100vh - 100px); overflow: auto; display: none; }
+  #drawer.open { display: block; }
+  #drawer .head { position: sticky; top: 0; background: var(--card); padding: 12px 14px 8px; border-bottom: 1px solid var(--line); z-index: 1; }
+  #drawer .head h2 { margin: 0 24px 2px 0; font-size: 16px; }
+  #drawer .head .sub { color: var(--mute); font-size: 12px; }
+  #drawer .x { position: absolute; top: 8px; right: 10px; border: 0; background: none; font-size: 20px; color: var(--mute); }
+  #drawer .content { padding: 4px 14px 14px; }
+  .tag { display: inline-block; border-radius: 999px; padding: 2px 10px; color: #fff; font-weight: 600; font-size: 12px; }
+  .kv { display: flex; justify-content: space-between; gap: 10px; padding: 3px 0; border-bottom: 1px dotted var(--line); }
+  .kv span:first-child { color: var(--mute); }
+  .kv span:last-child { text-align: right; font-weight: 500; }
+  .h5 { margin: 14px 0 4px; font-size: 10.5px; letter-spacing: .07em; text-transform: uppercase; color: var(--mute); font-weight: 600; }
+  .bar { display: flex; height: 14px; border-radius: 7px; overflow: hidden; background: #eceff3; margin: 6px 0 4px; }
+  .bar i { display: block; height: 100%; }
+  .barlg { display: flex; flex-wrap: wrap; gap: 4px 12px; font-size: 11.5px; color: var(--mute); }
+  .years { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; margin: 6px 0; }
+  .years div { height: 46px; border-radius: 6px; background: #eef0f3; position: relative; font-size: 10.5px; color: var(--mute); }
+  .years div span { position: absolute; bottom: 2px; width: 100%; text-align: center; }
+  .years div i { position: absolute; top: 8px; width: 100%; text-align: center; color: #6741d9; font-style: normal; letter-spacing: 1px; }
+  .years div.has { background: #e5dbff; }
+  .work { padding: 6px 0; border-top: 1px solid var(--line); }
+  .work .y { display: inline-block; min-width: 40px; text-align: center; border-radius: 999px; background: #e5dbff; color: #4c2fb0; font-weight: 600; font-size: 11.5px; padding: 1px 8px; margin-right: 6px; }
+  .warn { background: #fff4e0; border-radius: 8px; padding: 6px 9px; margin-top: 8px; }
+  .okbox { background: #ebfbee; border-radius: 8px; padding: 6px 9px; margin-top: 8px; }
+  .badbox { background: #fff0f0; border-radius: 8px; padding: 6px 9px; margin-top: 8px; }
+  table.t { width: 100%; border-collapse: collapse; font-size: 11.5px; margin-top: 4px; }
+  table.t th, table.t td { padding: 3px 4px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; }
+  table.t th { color: var(--mute); font-weight: 600; }
+  .btn { border: 1px solid var(--line); background: #fff; border-radius: 8px; padding: 6px 10px; margin: 6px 6px 0 0; }
+  .btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .mute { color: var(--mute); }
+  a { color: #1c5bd9; }
+  input[type=number], input[type=text] { font: inherit; padding: 4px 6px; border: 1px solid var(--line); border-radius: 6px; width: 100%; }
+
+  #footer { position: fixed; left: 12px; bottom: 12px; z-index: 1000; padding: 5px 10px; font-size: 11px; color: var(--mute); }
+  #basemap { position: fixed; right: 12px; bottom: 28px; z-index: 1000; display: flex; flex-direction: column; align-items: stretch; }
+  #toast { position: fixed; top: 64px; left: 50%; transform: translateX(-50%); z-index: 2000; background: var(--accent); color: #fff; padding: 8px 16px; border-radius: 999px; display: none; box-shadow: var(--shadow); }
+  #hint { position: fixed; left: 50%; bottom: 14px; transform: translateX(-50%); z-index: 1000; padding: 4px 12px; border-radius: 999px; font-size: 11.5px; color: var(--mute); display: none; }
+  #gate { position: fixed; inset: 0; z-index: 5000; display: none; align-items: center; justify-content: center; background: rgba(244,245,247,.98); }
+  #gate .box { width: 340px; padding: 26px 24px; text-align: center; }
+  #gate h2 { margin: 0 0 4px; font-size: 20px; color: var(--accent); }
+  #gate p { margin: 0 0 14px; color: var(--mute); }
+  #gate input { margin-bottom: 10px; text-align: center; padding: 9px; }
+  #gate .btn { width: 100%; margin: 0; padding: 9px; }
+  #gateErr { color: #c92a2a; min-height: 18px; margin-top: 8px; font-size: 12px; }
+  .leaflet-container { font: inherit; }
+  .leaflet-control-attribution { font-size: 10px; }
+  .leaflet-bottom.leaflet-right { margin-bottom: 0; }
+  @media (max-width: 900px) {
+    #layers { width: calc(100vw - 24px); top: auto; bottom: 52px; max-height: 45vh; }
+    #layers.collapsed { max-height: none; }
+    #drawer { right: 12px; left: 12px; width: auto; top: auto; bottom: 52px; max-height: 55vh; }
+    #projects { width: calc(100vw - 24px); }
+    #basemap { display: none; }
+  }
+</style>
+</head>
+<body>
+<div id="gate"><div class="card box">
+  <h2>BESS Grid</h2><p>Accès protégé — saisissez le mot de passe</p>
+  <input type="password" id="gatePw" placeholder="Mot de passe" autocomplete="current-password">
+  <button class="btn primary" id="gateBtn">Ouvrir</button><div id="gateErr"></div>
+</div></div>
+<div id="map"></div>
+
+<div id="topleft">
+  <button class="pill" id="btnProjects">📁 Projets · <span id="projCount">0</span></button>
+  <button class="pill primary" id="btnNew">＋ Créer un projet</button>
+</div>
+<div id="projects" class="card"></div>
+<div id="toast"></div>
+<div id="hint" class="card"></div>
+
+<div id="layers" class="card">
+  <header id="layersHead"><span>Couches</span><span id="chev">▾</span></header>
+  <div class="body">
+    <div class="sec" style="border-top:0;margin-top:0">
+      <h4>Vue réseau</h4>
+      <label><input type="radio" name="view" value="reseau"> Réseau (aérien / souterrain)</label>
+      <label><input type="radio" name="view" value="capacite" checked> Capacité d'accueil (poste source)</label>
+      <label><input type="radio" name="view" value="file"> File d'attente S3REnR</label>
+      <label><input type="radio" name="view" value="remplissage"> Taux de remplissage du schéma</label>
+      <label><input type="radio" name="view" value="postes"> Capacité publiée (Caparéseau) — postes seuls</label>
+      <div class="legend" id="legend"></div>
+    </div>
+    <div class="sec">
+      <h4>Sens</h4>
+      <label><input type="radio" name="dir" checked> Injection (production)</label>
+      <label class="dis"><input type="radio" name="dir" disabled> Soutirage (consommation)</label>
+      <div class="note">Caparéseau ne publie que l'injection ; le soutirage n'a pas de données ouvertes.</div>
+    </div>
+    <div class="sec">
+      <h4>File d'attente</h4>
+      <label><input type="checkbox" id="queueOn" checked> Compter la file d'attente S3REnR</label>
+      <div class="note">Décoché : capacité restante + file d'attente (borne haute, si aucun projet de la file ne se réalise).</div>
+    </div>
+    <div class="sec">
+      <h4>Réseau électrique</h4>
+      <label><input type="checkbox" id="L_aerien" checked><span class="ln" style="border-top:2px solid #2a6fdb"></span> HTA aérien</label>
+      <label><input type="checkbox" id="L_souterrain" checked><span class="ln" style="border-top:2px dashed #e8890c"></span> HTA souterrain</label>
+      <label><input type="checkbox" id="L_htb"><span class="ln" style="border-top:3px solid #6741d9"></span> Lignes HTB (63–400 kV, OSM)</label>
+      <label><input type="checkbox" id="L_postes" checked><span class="dot" style="background:#1F3864"></span> Postes sources <span class="mute" id="nPostes"></span></label>
+      <div class="note" id="htaHint">Zoomez (≥ 9) pour afficher les lignes HTA.</div>
+    </div>
+    <div class="sec">
+      <h4>Foncier &amp; prospection</h4>
+      <label><input type="checkbox" id="L_sites" checked><span class="dot" style="background:#0b8a3e"></span> Opportunités foncières <span class="mute" id="nSites"></span> <a href="#" id="fSitesToggle" style="margin-left:auto">filtres</a></label>
+      <div class="filters open" id="fSites">
+        <div class="row"><span style="width:90px">Score min.</span><input type="range" id="fScore" min="0" max="100" value="0"><b id="fScoreV" style="width:26px;text-align:right">0</b></div>
+        <div class="row"><span style="width:90px">Prix max.</span>
+          <select id="fPrice"><option value="0">illimité</option><option value="300000">300 k€</option><option value="200000">200 k€</option><option value="150000">150 k€</option></select></div>
+        <div class="row"><span style="width:90px">Dist. poste ≤</span><input type="range" id="fDist" min="0.5" max="5" step="0.5" value="5"><b id="fDistV" style="width:34px;text-align:right">5 km</b></div>
+        <div class="row"><span style="width:90px">Zonage PLU</span>
+          <span class="chip on" data-z="eco">éco</span><span class="chip on" data-z="agricole">agricole</span>
+          <span class="chip" data-z="autre">autre</span><span class="chip" data-z="inconnu">inconnu</span></div>
+      </div>
+      <label><input type="checkbox" id="L_ent"><span class="dot" style="background:#7a4e00"></span> Entreprises cibles <span class="mute" id="nEnt"></span></label>
+      <label><input type="checkbox" id="L_met"><span class="dot" style="background:#1B5E20"></span> Méthaniseurs <span class="mute" id="nMet"></span></label>
+    </div>
+    <div class="sec">
+      <h4>Données ouvertes</h4>
+      <label><input type="checkbox" id="L_prod"><span class="dot" style="background:#f08c00"></span> Production raccordée HTA (par commune)</label>
+      <label><input type="checkbox" id="L_conso"><span class="dot" style="background:#7048e8"></span> Consommation industrielle (par commune)</label>
+      <div class="note">Registre national des installations (ODRÉ) · Enedis open data.</div>
+    </div>
+    <div class="sec">
+      <h4>Projets</h4>
+      <label><input type="checkbox" id="L_proj" checked><span class="dot" style="background:#1F3864;border-radius:3px"></span> Projets &amp; simulations Enedis</label>
+    </div>
+  </div>
+</div>
+
+<div id="drawer" class="card"></div>
+<div id="footer" class="card">chargement des données…</div>
+<div id="basemap"><button class="pill" id="btnBase">Fond : clair</button></div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://unpkg.com/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<script src="https://unpkg.com/protomaps-leaflet@5.1.0/dist/protomaps-leaflet.js"></script>
+<script>
+// =============================================================== constantes
+const $ = (s) => document.querySelector(s);
+const $$ = (s) => [...document.querySelectorAll(s)];
+const HOST = { 0: '#c92a2a', 1: '#f76707', 2: '#d9a400', 3: '#0b8a3e', u: '#868e96' };
+const COST = { fixed: 100000, cable: 120 };            // hypothèses indicatives (cf. grid_config.json)
+const COL = {
+  nom: "Réf. / annonce", source: "Source", commune: "Commune (Dépt)", url: "Lien / URL",
+  prixEur: "Prix estimé (€) [DVF]", prixM2: "Prix €/m² estimé [DVF]", surface: "Surface (m²)",
+  lat: "Lat (°)", lon: "Lon (°)", poste: "Poste le plus proche", distPoste: "Distance (km)",
+  capacite: "Capacité poste (MW)", plu: "Zone PLU", zoneEco: "Zone éco (UE/UI/UX)",
+  inondation: "Risque inondation (AZI)", proteges: "Espaces protégés / Natura 2000", score: "SCORE COMBINÉ",
+};
+const state = { view: 'capacite', queue: true, creating: false, base: 'gray' };
+let map, baseOsm, canvas;
+let postesData = [], postesVersion = null, tilesVersion = null;
+let htaLayers = [], htbLayer = null, posteGroup, siteGroup, entGroup, metGroup, prodGroup, consoGroup, projGroup;
+let sitesRows = [], entRows = [], metRows = [];
+let projects = [];            // projets fournis (simulations) + projets créés (localStorage)
+let selected = null;
+
+// =============================================================== utilitaires
+const num = (v) => { const n = parseFloat(String(v).replace(',', '.')); return Number.isFinite(n) ? n : null; };
+const fmt = (v, u = '') => (v === null || v === undefined || v === '' ? '—' : v + u);
+const fmtN = (v, d = 1, u = '') => (v === null || v === undefined ? '—' : Number(v).toLocaleString('fr-FR', { maximumFractionDigits: d }) + u);
+const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+function hav(la1, lo1, la2, lo2) {
+  const R = 6371, r = Math.PI / 180, dLa = (la2 - la1) * r, dLo = (lo2 - lo1) * r;
+  const a = Math.sin(dLa / 2) ** 2 + Math.cos(la1 * r) * Math.cos(la2 * r) * Math.sin(dLo / 2) ** 2;
+  return 2 * R * Math.asin(Math.sqrt(a));
+}
+function toast(msg, ms = 3500) { const t = $('#toast'); t.textContent = msg; t.style.display = 'block'; clearTimeout(toast.t); toast.t = setTimeout(() => (t.style.display = 'none'), ms); }
+const hostCls = (na) => (na === null || na === undefined ? 'u' : na <= 0.5 ? 0 : na < 5 ? 1 : na < 20 ? 2 : 3);
+const hostLabel = { 0: 'Saturé (≤ 0,5 MW)', 1: '0,5 – 5 MW', 2: '5 – 20 MW', 3: '> 20 MW', u: 'Poste inconnu' };
+const queueCls = (fa) => (fa === null || fa === undefined ? 'u' : fa <= 0.05 ? 3 : fa < 5 ? 2 : fa < 20 ? 1 : 0);
+const fillCls = (tx) => (tx === null || tx === undefined ? 'u' : tx < 50 ? 3 : tx < 80 ? 2 : tx < 95 ? 1 : 0);
+const scoreColor = (s) => `hsl(${Math.max(0, Math.min(100, Number(s) || 0)) * 1.2}, 70%, 42%)`;
+
+// zonage PLU (même logique que l'interface classique)
+const ECO_CODE = /^\d?\s*A?U\s*[EIXYZ]/i, ECO_KW = /activit|écono|econo|industri|artisan|commerc/i, NONECO_KW = /agricol|naturel|forest/i;
+function zoningFamily(r) {
+  const z = String(r[COL.plu] || '').trim(), code = z.split('—')[0].trim();
+  if (z && ECO_CODE.test(code)) return 'eco';
+  if (z && (/agricol/i.test(z) || /^\d?\s*A(?!U)/i.test(code))) return 'agricole';
+  if (z && (/naturel|forest/i.test(z) || /^\d?\s*N/i.test(code))) return 'naturelle';
+  if (String(r[COL.zoneEco] || '').toLowerCase().startsWith('oui') || (z && !NONECO_KW.test(z) && ECO_KW.test(z))) return 'eco';
+  return z ? 'autre' : 'inconnu';
+}
+
+// =============================================================== valeur de capacité d'un poste selon la vue
+function posteNa(p) { return p.na === null ? null : state.queue ? p.na : p.na + (p.fa || 0); }
+function posteColor(p) {
+  if (!p) return HOST.u;
+  if (state.view === 'file') return HOST[queueCls(p.fa)];
+  if (state.view === 'remplissage') return HOST[fillCls(p.tx)];
+  return HOST[hostCls(posteNa(p))];
+}
+function lineColor(f, kind) {
+  const props = (f && f.props) || {};
+  if (state.view === 'reseau') return kind === 'souterrain' ? '#e8890c' : '#2a6fdb';
+  if (state.view === 'postes') return '#aab0b8';
+  const sameTiles = tilesVersion && tilesVersion === postesVersion;
+  const p = props.p !== undefined && sameTiles ? postesData[props.p] : null;
+  if (state.view === 'capacite' && !p) return props.h !== undefined && props.h >= 0 && state.queue ? HOST[props.h] : HOST.u;
+  return posteColor(p);
+}
+function paintRules() {
+  const w = (z) => (z < 11 ? 1.1 : z < 13 ? 1.8 : 2.8), rules = [];
+  for (const kind of ['aerien', 'souterrain']) {
+    if (!$('#L_' + kind).checked) continue;
+    const c = (z, f) => lineColor(f, kind);
+    rules.push({ dataLayer: kind, symbolizer: new protomapsL.LineSymbolizer({ color: c, width: w, opacity: .92,
+      dash: kind === 'souterrain' ? [5, 3] : undefined, dashColor: c, dashWidth: w }) });
+  }
+  return rules;
+}
+const HTB_COL = { 63: '#b197fc', 90: '#9775fa', 150: '#845ef7', 225: '#6741d9', 400: '#3b1f9e' };
+function htbRules() {
+  const c = (z, f) => HTB_COL[(f && f.props && f.props.v) || 63] || '#9775fa';
+  const w = (z, f) => { const v = (f && f.props && f.props.v) || 63; return (v >= 400 ? 2.6 : v >= 225 ? 2.0 : 1.4) * (z < 8 ? .8 : 1); };
+  return [{ dataLayer: 'htb', symbolizer: new protomapsL.LineSymbolizer({ color: c, width: w, opacity: .9 }) }];
+}
+function refreshLines() { htaLayers.forEach((l) => { l.paintRules = paintRules(); l.rerenderTiles(); }); }
+
+function renderLegend() {
+  const items = state.view === 'reseau'
+    ? [['#2a6fdb', 'HTA aérien'], ['#e8890c', 'HTA souterrain (pointillés)']]
+    : state.view === 'file'
+      ? [[HOST[3], 'Aucune file d\'attente'], [HOST[2], '< 5 MW'], [HOST[1], '5 – 20 MW'], [HOST[0], '≥ 20 MW'], [HOST.u, 'Poste inconnu']]
+      : state.view === 'remplissage'
+        ? [[HOST[3], '< 50 %'], [HOST[2], '50 – 80 %'], [HOST[1], '80 – 95 %'], [HOST[0], '≥ 95 % (schéma plein)'], [HOST.u, 'Poste inconnu']]
+        : [[HOST[0], hostLabel[0]], [HOST[1], hostLabel[1]], [HOST[2], hostLabel[2]], [HOST[3], hostLabel[3]], [HOST.u, hostLabel.u]];
+  const note = state.view === 'reseau' ? '' : '<div class="mute" style="margin-top:3px">Chaque tronçon prend la valeur du poste source qui l\'alimente par le réseau : proxy, pas une capacité par ligne.</div>';
+  $('#legend').innerHTML = items.map(([c, t]) => `<div><span class="ln" style="border-top:3px solid ${c}"></span>${t}</div>`).join('') + note;
+}
+
+// =============================================================== carte
+function initMap() {
+  map = L.map('map', { zoomControl: false }).setView([46.6, 2.4], 6);
+  L.control.zoom({ position: 'bottomright' }).addTo(map);
+  baseOsm = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; OpenStreetMap contributors', maxZoom: 19, className: 'base-gray' }).addTo(map);
+  canvas = L.canvas({ padding: .5 });
+  map.createPane('gridPane'); map.getPane('gridPane').style.zIndex = 380; map.getPane('gridPane').style.pointerEvents = 'none';
+  map.createPane('dataPane'); map.getPane('dataPane').style.zIndex = 420;
+  map.createPane('sitePane'); map.getPane('sitePane').style.zIndex = 450;
+  map.createPane('postePane'); map.getPane('postePane').style.zIndex = 470;
+  map.createPane('projPane'); map.getPane('projPane').style.zIndex = 520;
+  [posteGroup, siteGroup, entGroup, metGroup, prodGroup, consoGroup, projGroup] = Array.from({ length: 7 }, () => L.layerGroup());
+  map.on('click', (e) => { if (state.creating) createProjectAt(e.latlng.lat, e.latlng.lng); });
+  map.on('zoomend', () => { $('#htaHint').style.display = map.getZoom() >= 9 ? 'none' : 'block'; });
+  $('#htaHint').style.display = 'block';
+}
+
+function addTiles(url, bounds, minZoom, rules) {
+  const l = protomapsL.leafletLayer({ url, pane: 'gridPane', paintRules: rules(), labelRules: [], minZoom,
+    ...(bounds ? { bounds } : {}), attribution: 'Réseau : Agence ORE / Enedis et ELD (Licence Ouverte 2.0) · HTB © OpenStreetMap' });
+  l.addTo(map); return l;
+}
+async function loadTiles() {
+  try {
+    const m = await fetch('hta/manifest.json').then((r) => (r.ok ? r.json() : {}));
+    for (const e of Object.values(m)) {
+      tilesVersion = tilesVersion || e.postes_version || null;
+      const b = [[e.bounds[1], e.bounds[0]], [e.bounds[3], e.bounds[2]]];
+      if (e.kind === 'htb') { htbLayer = addTiles(e.file, b, e.minzoom || 5, htbRules); if (!$('#L_htb').checked) map.removeLayer(htbLayer); }
+      else htaLayers.push(addTiles(e.file, b, 9, paintRules));
+    }
+  } catch (e) { /* carte sans couche réseau */ }
+}
+
+// =============================================================== postes
+function posteIcon(p) { return { renderer: canvas, pane: 'postePane', radius: 5 + Math.min(7, Math.sqrt(p.cr || 0) / 2), color: '#fff', weight: 1.6, fillColor: posteColor(p), fillOpacity: .96 }; }
+function drawPostes() {
+  posteGroup.clearLayers();
+  postesData.forEach((p, i) => {
+    const m = L.circleMarker([p.la, p.lo], posteIcon(p)).on('click', (e) => { L.DomEvent.stop(e); showPoste(i); });
+    m.bindTooltip(`${p.n} — ${p.na === null ? '?' : fmtN(posteNa(p), 1) + ' MW'}`);
+    m._p = p; posteGroup.addLayer(m);
+  });
+  $('#nPostes').textContent = `(${postesData.length})`;
+}
+function restylePostes() { posteGroup.eachLayer((m) => m.setStyle({ fillColor: posteColor(m._p) })); }
+
+function worksOf(p) { return p.tr || []; }
+function showPoste(i) {
+  const p = postesData[i], cls = hostCls(posteNa(p));
+  const cr = p.cr || 0, es = p.es || 0, fa = p.fa || 0, na = p.na || 0, tot = Math.max(cr, es + fa + na, 0.001);
+  const seg = (v, c) => `<i style="width:${(v / tot) * 100}%;background:${c}"></i>`;
+  const years = [2026, 2027, 2028, 2029, 2030, 2031, 2032];
+  const w = worksOf(p), byYear = Object.fromEntries(years.map((y) => [y, w.filter((x) => x.annee === y).length]));
+  const pr = p.pr || {}, prTot = Object.entries(pr).filter(([k]) => !k.startsWith('n_')).reduce((s, [, v]) => s + v, 0);
+  const prNames = { pv: 'Solaire', eo: 'Éolien', hy: 'Hydraulique', bio: 'Bioénergies', th: 'Thermique', st: 'Stockage', autre: 'Autres' };
+  drawer(`<div class="head"><button class="x" onclick="closeDrawer()">×</button><h2>🔌 ${esc(p.n)}</h2>
+      <div class="sub">${esc(p.s3 || '')} · poste source</div>
+      <div style="margin-top:6px"><span class="tag" style="background:${HOST[cls]}">${p.na === null ? 'capacité inconnue' : fmtN(posteNa(p), 1) + ' MW disponibles'}</span></div></div>
+    <div class="content">
+      <div class="h5">Budget de capacité réservée (S3REnR)</div>
+      <div class="bar">${seg(es, '#1F3864')}${seg(fa, '#f08c00')}${seg(na, '#2f9e44')}</div>
+      <div class="barlg"><span>■ <b style="color:#1F3864">en service</b> ${fmtN(p.es)} MW</span><span>■ <b style="color:#f08c00">file d'attente</b> ${fmtN(p.fa)} MW</span><span>■ <b style="color:#2f9e44">disponible</b> ${fmtN(p.na)} MW</span></div>
+      <div class="kv"><span>Capacité réservée</span><span>${fmtN(p.cr)} MW</span></div>
+      <div class="kv"><span>Taux de remplissage</span><span>${fmtN(p.tx, 0, ' %')}</span></div>
+      <div class="kv"><span>Quote-part</span><span>${fmtN(p.qp, 2, ' €/kW')}${p.qp ? ` (${fmtN(p.qp, 1)} k€/MW)` : ''}</span></div>
+      ${p.tv ? `<div class="kv"><span>Travaux RTE</span><span>${esc(p.tv)}</span></div>` : ''}
+      ${prTot > 0 ? `<div class="h5">Production déjà raccordée au poste</div>
+        <div class="kv"><span>Total</span><span>${fmtN(prTot, 1)} MW</span></div>
+        ${Object.entries(pr).filter(([k, v]) => !k.startsWith('n_') && v > 0.05).sort((a, b) => b[1] - a[1]).map(([k, v]) => `<div class="kv"><span>${prNames[k] || k}</span><span>${fmtN(v, 1)} MW${pr['n_' + k] ? ` · ${pr['n_' + k]} inst.` : ''}</span></div>`).join('')}` : ''}
+      <div class="h5">Ce qui change, et quand</div>
+      <div class="years">${years.map((y) => `<div class="${byYear[y] ? 'has' : ''}"><i>${'●'.repeat(Math.min(3, byYear[y]))}</i><span>${String(y).slice(2)}</span></div>`).join('')}</div>
+      ${w.length ? w.map((x) => `<div class="work"><span class="y">${x.annee || '?'}</span><b>${esc(x.titre)}</b><br><span class="mute">${esc(x.etat || 'état ?')}${x.cout_k ? ' · ' + fmtN(x.cout_k, 0) + ' k€' : ''}${x.engage ? ' · projet engagé' : ''} · ETF ${esc(x.ed || '')}</span></div>`).join('')
+        : `<div class="mute">${p.tv ? 'Travaux signalés par Caparéseau, sans calendrier détaillé dans les états techniques et financiers extraits.' : 'Aucun travaux signalé.'}</div>`}
+      <div class="h5">En amont — RTE</div>
+      ${p.ct ? `<div class="warn"><b>⚠ Contrainte RTE amont</b> — ${esc(p.ct)}<br>Sensibilité max ${p.cs} % <span class="mute">(horizon 3-5 ans)</span></div>` : '<div class="mute">Aucune contrainte RTE amont identifiée pour ce poste.</div>'}
+      <div class="mute" style="margin-top:10px;font-size:11px">Sources : Caparéseau (RTE), ODRÉ (contraintes, registre), états techniques et financiers S3REnR. À confirmer avant toute PTF.</div>
+      <button class="btn" onclick="zoomTo(${p.la},${p.lo},13)">Zoomer sur la carte</button>
+      <button class="btn primary" onclick="createProjectAt(${p.la},${p.lo})">Créer un projet ici</button>
+    </div>`);
+}
+
+// =============================================================== opportunités foncières
+const sf = { score: 0, price: 0, dist: 5, zones: new Set(['eco', 'agricole']) };
+function passSite(r) {
+  const s = num(r[COL.score]) || 0; if (s < sf.score) return false;
+  const p = num(r[COL.prixEur]); if (sf.price && p !== null && p > sf.price) return false;
+  const d = num(r[COL.distPoste]); if (d !== null && d > sf.dist) return false;
+  const f = zoningFamily(r); return sf.zones.has(f === 'naturelle' ? 'autre' : f);
+}
+function drawSites() {
+  siteGroup.clearLayers(); let n = 0;
+  sitesRows.forEach((r, i) => {
+    if (!passSite(r)) return; n++;
+    const la = num(r[COL.lat]), lo = num(r[COL.lon]); if (la === null || lo === null) return;
+    L.circleMarker([la, lo], { renderer: canvas, pane: 'sitePane', radius: 5, color: '#fff', weight: 1, fillColor: scoreColor(r[COL.score]), fillOpacity: .95 })
+      .on('click', (e) => { L.DomEvent.stop(e); showSite(i); }).bindTooltip(String(r[COL.nom] || '').slice(0, 60)).addTo(siteGroup);
+  });
+  $('#nSites').textContent = `(${n} / ${sitesRows.length})`;
+}
+function showSite(i) {
+  const r = sitesRows[i], sc = num(r[COL.score]) || 0, la = num(r[COL.lat]), lo = num(r[COL.lon]);
+  const lo_k = r['Raccordement min (k€)'], hi_k = r['Raccordement max (k€)'];
+  const fam = { eco: 'Zone d\'activité', agricole: 'Zone agricole', naturelle: 'Zone naturelle', autre: 'Autre zone', inconnu: 'Zonage inconnu' }[zoningFamily(r)];
+  drawer(`<div class="head"><button class="x" onclick="closeDrawer()">×</button><h2>${esc(String(r[COL.nom]).slice(0, 70))}</h2>
+      <div class="sub">${esc(r[COL.commune])} · ${esc(r[COL.source])}</div>
+      <div style="margin-top:6px"><span class="tag" style="background:${scoreColor(sc)}">Score ${sc.toFixed(0)}</span> <span class="tag" style="background:#667085">${fam}</span></div></div>
+    <div class="content">
+      <div class="kv"><span>Prix</span><span>${r[COL.prixEur] ? fmtN(num(r[COL.prixEur]), 0, ' €') : '—'}${r[COL.prixM2] ? ` · ${fmtN(num(r[COL.prixM2]), 1, ' €/m²')}` : ''}</span></div>
+      <div class="kv"><span>Surface</span><span>${fmtN(num(r[COL.surface]), 0, ' m²')}</span></div>
+      <div class="kv"><span>Zone PLU</span><span>${esc(r[COL.plu] || '—')}</span></div>
+      <div class="h5">Raccordement</div>
+      <div class="kv"><span>Poste le plus proche</span><span>${esc(r[COL.poste])} · ${fmt(r[COL.distPoste], ' km')}</span></div>
+      <div class="kv"><span>Capacité du poste</span><span>${esc(r[COL.capacite])}</span></div>
+      ${r['Poste capacité connue'] && String(r[COL.capacite]).includes('vérifier') ? `<div class="kv"><span>Capacité connue la + proche</span><span>${esc(r['Poste capacité connue'])} · ${fmt(r['Dist. capa connue (km)'], ' km')} · ${fmt(r['Capacité connue (MW)'], ' MW')}</span></div>` : ''}
+      <div class="kv"><span>Réseau HTA le plus proche</span><span>${r['Dist. HTA (m)'] !== undefined && r['Dist. HTA (m)'] !== '' ? fmtN(num(r['Dist. HTA (m)']), 0, ' m') + ' · ' + esc(r['Réseau HTA proche']) : '—'}</span></div>
+      ${hi_k !== undefined && hi_k !== '' ? `<div class="kv"><span>Raccordement estimé</span><span>${fmtN(num(lo_k), 0)} – ${fmtN(num(hi_k), 0)} k€</span></div><div class="mute" style="font-size:11px">Indicatif : fixe + quote-part + distance × coût au mètre (grid_config.json).</div>` : ''}
+      <div class="h5">Risques</div>
+      <div class="kv"><span>Inondation</span><span>${esc(r[COL.inondation] || '—')}</span></div>
+      <div class="kv"><span>Espaces protégés</span><span>${esc(r[COL.proteges] || '—')}</span></div>
+      ${r[COL.url] ? `<a class="btn" style="display:inline-block;text-decoration:none" href="${esc(r[COL.url])}" target="_blank" rel="noopener">Annonce source →</a>` : ''}
+      <a class="btn" style="display:inline-block;text-decoration:none" href="https://www.google.com/maps/search/?api=1&query=${la},${lo}" target="_blank" rel="noopener">Google Maps →</a>
+      <button class="btn primary" onclick="createProjectAt(${la},${lo})">Créer un projet ici</button>
+    </div>`);
+}
+
+// =============================================================== entreprises / méthaniseurs
+function drawPoints(rows, group, color, kind) {
+  group.clearLayers();
+  rows.forEach((r, i) => {
+    const la = num(r['Lat']), lo = num(r['Lon']); if (la === null || lo === null) return;
+    L.circleMarker([la, lo], { renderer: canvas, pane: 'sitePane', radius: 6, color: '#fff', weight: 1.2, fillColor: color, fillOpacity: .95 })
+      .on('click', (e) => { L.DomEvent.stop(e); showPointRow(kind, i); }).bindTooltip(String(r['Entreprise'] || r['Méthaniseur'] || '')).addTo(group);
+  });
+}
+function showPointRow(kind, i) {
+  const r = (kind === 'ent' ? entRows : metRows)[i], isEnt = kind === 'ent';
+  const rows = isEnt
+    ? [['Secteur', r['Secteur (NAF)']], ['Effectif', r['Effectif']], ['ICPE', r['ICPE (régime)']], ['Conso. estimée', r['Conso. estimée']], ['Terrain libre', fmtN(num(r['Terrain libre est. (m²)']), 0, ' m²')], ['Poste source', `${r['Poste source']} · ${fmt(r['Distance poste (km)'], ' km')}`], ['Capacité poste', fmt(r['Capacité poste (MW)'], ' MW')]]
+    : [['ICPE', r['ICPE (régime)']], ['Injecte du biométhane', r['Injecte biométhane']], ['Capacité injection', fmt(r['Capacité injection (GWh/an)'], ' GWh/an')], ['Poste source', `${r['Poste source']} · ${fmt(r['Distance poste (km)'], ' km')}`], ['Capacité poste', fmt(r['Capacité poste (MW)'], ' MW')]];
+  const la = num(r['Lat']), lo = num(r['Lon']);
+  drawer(`<div class="head"><button class="x" onclick="closeDrawer()">×</button><h2>${esc(r['Entreprise'] || r['Méthaniseur'])}</h2><div class="sub">${esc(r['Adresse'] || r['Commune'] || '')}</div></div>
+    <div class="content">${rows.map(([k, v]) => `<div class="kv"><span>${k}</span><span>${esc(v ?? '—')}</span></div>`).join('')}
+      ${r['Lien annuaire'] ? `<a class="btn" style="display:inline-block;text-decoration:none" href="${esc(r['Lien annuaire'])}" target="_blank" rel="noopener">Annuaire →</a>` : ''}
+      <button class="btn primary" onclick="createProjectAt(${la},${lo})">Créer un projet ici</button></div>`);
+}
+
+// =============================================================== données ouvertes (communes)
+function drawProd(rows) {
+  prodGroup.clearLayers();
+  rows.forEach(([insee, la, lo, tot, pv, eo, autres, st]) => {
+    L.circleMarker([la, lo], { renderer: canvas, pane: 'dataPane', radius: Math.max(2.5, Math.min(22, Math.sqrt(tot) * 1.6)), stroke: false, fillColor: '#f08c00', fillOpacity: .5 })
+      .bindTooltip(`Commune ${insee} — production HTA ${fmtN(tot, 1)} MW (PV ${fmtN(pv, 1)}, éolien ${fmtN(eo, 1)}, autres ${fmtN(autres, 1)}${st ? ', stockage ' + fmtN(st, 1) : ''})`).addTo(prodGroup);
+  });
+}
+function drawConso(d) {
+  consoGroup.clearLayers();
+  d.rows.forEach(([insee, la, lo, gwh]) => {
+    L.circleMarker([la, lo], { renderer: canvas, pane: 'dataPane', radius: Math.max(2.5, Math.min(24, Math.sqrt(gwh) * 1.1)), stroke: false, fillColor: '#7048e8', fillOpacity: .45 })
+      .bindTooltip(`Commune ${insee} — consommation industrielle ${fmtN(gwh, 1)} GWh/an (${d.annee})`).addTo(consoGroup);
+  });
+}
+
+// =============================================================== projets & simulations
+const USER_KEY = 'bess_grid_projects_v1';
+function loadUserProjects() { try { return JSON.parse(localStorage.getItem(USER_KEY) || '[]'); } catch (e) { return []; } }
+function saveUserProjects() { try { localStorage.setItem(USER_KEY, JSON.stringify(projects.filter((p) => p.user))); } catch (e) { /* stockage indisponible */ } }
+function nearestPostes(la, lo, k = 5) {
+  return postesData.map((p, i) => ({ p, i, d: hav(la, lo, p.la, p.lo) })).sort((a, b) => a.d - b.d).slice(0, k);
+}
+function connectionTest(pr) {
+  const P = pr.puissance_mw || 3, near = nearestPostes(pr.lat, pr.lon, 5);
+  const best = near[0];
+  const qp = best && best.p.qp ? best.p.qp : 0;
+  const hi = COST.fixed + qp * P * 1000 + (best ? best.d * 1000 * COST.cable : 0);
+  return { P, near, best, hi: Math.round(hi / 1000), qpK: Math.round(qp * P) };
+}
+function drawProjects() {
+  projGroup.clearLayers();
+  projects.forEach((pr) => {
+    const icon = L.divIcon({ className: '', iconSize: [26, 26], html: `<div style="width:26px;height:26px;border-radius:6px;background:${pr.user ? '#7048e8' : '#1F3864'};color:#fff;font-weight:700;display:flex;align-items:center;justify-content:center;border:2px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,.4)">P</div>` });
+    L.marker([pr.lat, pr.lon], { icon, pane: 'projPane' }).on('click', (e) => { L.DomEvent.stop(e); showProject(pr.id); }).bindTooltip(pr.nom).addTo(projGroup);
+  });
+  $('#projCount').textContent = projects.length;
+}
+function renderProjectsList() {
+  const given = projects.filter((p) => !p.user), mine = projects.filter((p) => p.user);
+  const card = (p) => `<div class="proj" onclick="showProject('${p.id}', true)"><b>${esc(p.nom)}</b><small>${esc(p.commune || '')} · ${fmtN(p.puissance_mw, 2)} MW${(p.simulations || []).length ? ` · ${p.simulations.length} simulation(s) Enedis` : ''}</small><br><small>${esc(p.statut || '')}</small></div>`;
+  $('#projects').innerHTML = `<h3>Projets avec simulations Enedis</h3>${given.length ? given.map(card).join('') : '<div class="empty">Aucun fichier de simulations chargé (private/simulations.json).</div>'}
+    <h3>Mes projets</h3>${mine.length ? mine.map(card).join('') : '<div class="empty">Cliquez sur « Créer un projet » puis sur la carte.</div>'}
+    <div style="padding:8px 14px"><button class="btn" onclick="exportProjects()">Exporter mes projets (JSON)</button></div>`;
+}
+function exportProjects() {
+  const blob = new Blob([JSON.stringify(projects.filter((p) => p.user), null, 2)], { type: 'application/json' });
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'mes_projets_bess.json'; a.click(); URL.revokeObjectURL(a.href);
+}
+function simTable(sims) {
+  if (!sims || !sims.length) return '';
+  const L = (s) => (s.longueur_corrigee_m ? `${fmtN(s.longueur_m, 0)} → <b>${fmtN(s.longueur_corrigee_m, 0)} m</b>` : s.longueur_m >= 1000 ? `<b>${fmtN(s.longueur_m / 1000, 1)} km</b>` : `<b>${fmtN(s.longueur_m, 0)} m</b>`);
+  return `<table class="t"><tr><th>N°</th><th>Usage</th><th>kW</th><th>Longueur</th><th>Poste source</th></tr>
+    ${sims.map((s) => `<tr><td>${esc(s.n || '—')}<br><span class="mute">${esc(s.date || '')}</span></td><td>${esc(s.usage)}<br><span class="mute">${esc(s.point || '')}</span></td><td>${fmtN(s.puissance_kw, 0)}</td><td>${L(s)}</td><td>${esc(s.poste_source || '')}${s.tan_phi !== undefined ? `<br><span class="mute">tan φ ${s.tan_phi}</span>` : ''}</td></tr>`).join('')}</table>
+    <div class="mute" style="font-size:11px;margin-top:3px">Statut Enedis : ${esc([...new Set(sims.map((s) => s.statut))].join(' ; '))}. Résultats indicatifs, non engageants ; le simulateur ignore la file d'attente du départ HTA et plafonne à 2 MW.</div>`;
+}
+function simCostBox(pr) {
+  // coût indicatif dérivé des longueurs simulées (hors quote-part : projets hors S3REnR)
+  const best = (usage) => (pr.simulations || []).filter((x) => x.usage.startsWith(usage) && x.longueur_m)
+    .map((x) => ({ ...x, len: x.longueur_corrigee_m || x.longueur_m })).sort((a, b) => b.len - a.len)[0];
+  const line = (lbl, x) => x ? `<div class="kv"><span>${lbl} (${fmtN(x.puissance_kw, 0)} kW, n° ${esc(x.n || '—')})</span><span>${fmtN(x.len, 0)} m → ≈ <b>${fmtN((COST.fixed + x.len * COST.cable) / 1000, 0)} k€</b></span></div>` : '';
+  const rows = line('Injection', best('production')) + line('Soutirage', best('consommation')) + (!best('production') && !best('consommation') ? line('Simulation', (pr.simulations || [])[0] && { ...pr.simulations[0], len: pr.simulations[0].longueur_m }) : '');
+  return rows ? `<div class="h5">Coût de raccordement indicatif</div>${rows}<div class="mute" style="font-size:11px">Fixe ${COST.fixed / 1000} k€ + longueur × ${COST.cable} €/m, hors quote-part S3REnR (projet hors schéma) et hors renforcement éventuel du départ.</div>` : '';
+}
+function showProject(id, fly) {
+  const pr = projects.find((p) => p.id === id); if (!pr) return;
+  if (fly) map.flyTo([pr.lat, pr.lon], Math.max(map.getZoom(), 13));
+  const ct = connectionTest(pr);
+  const ctx = (pr.contexte_reseau || []);
+  const near = ct.near.map((n) => `<tr><td>${esc(n.p.n)}</td><td>${fmtN(n.d, 1)} km</td><td>${n.p.na === null ? '—' : fmtN(n.p.na, 1)}</td><td>${fmtN(n.p.fa, 1)}</td><td>${fmtN(n.p.qp, 1)}</td></tr>`).join('');
+  const ok = ct.best && ct.best.p.na !== null && ct.best.p.na >= ct.P;
+  const hasSims = (pr.simulations || []).length > 0;
+  drawer(`<div class="head"><button class="x" onclick="closeDrawer()">×</button><h2>${esc(pr.nom)}</h2>
+      <div class="sub">${esc(pr.commune || '')}${pr.societe ? ' · ' + esc(pr.societe) : ''}</div>
+      <div style="margin-top:6px"><span class="tag" style="background:${pr.user ? '#7048e8' : '#1F3864'}">${pr.user ? 'Mon projet' : 'Projet'}</span> <span class="tag" style="background:#667085">${fmtN(pr.puissance_mw, 2)} MW</span></div></div>
+    <div class="content">
+      ${pr.user ? `<div class="h5">Paramètres</div><div class="kv"><span>Nom</span><span><input type="text" value="${esc(pr.nom)}" onchange="editProject('${pr.id}','nom',this.value)"></span></div>
+        <div class="kv"><span>Puissance (MW)</span><span><input type="number" step="0.1" min="0.1" value="${pr.puissance_mw}" onchange="editProject('${pr.id}','puissance_mw',parseFloat(this.value))"></span></div>` : `
+        <div class="kv"><span>Parcelle</span><span>${esc(pr.parcelle || '—')}</span></div>
+        <div class="kv"><span>Surface · zonage</span><span>${fmtN(pr.surface_m2, 0, ' m²')} · ${esc(pr.zonage || '—')}</span></div>
+        <div class="kv"><span>Poste source</span><span>${esc(pr.poste_source || '—')}</span></div>
+        <div class="kv"><span>Statut</span><span>${esc(pr.statut || '—')}</span></div>`}
+      ${hasSims ? `<div class="h5">Simulations Enedis</div>${simTable(pr.simulations)}${simCostBox(pr)}` : ''}
+      ${pr.conclusion ? `<div class="h5">Conclusion</div><div>${esc(pr.conclusion)}</div>` : ''}
+      ${ctx.length ? `<div class="h5">Contexte réseau (note de faisabilité)</div><table class="t"><tr><th>Poste</th><th>Dist.</th><th>Réservé</th><th>File</th><th>Dispo</th></tr>${ctx.map((c) => `<tr><td>${esc(c.poste)}${c.remarque ? `<br><span class="mute">${esc(c.remarque)}</span>` : ''}</td><td>${fmt(c.dist_km, ' km')}</td><td>${fmt(c.cr)}</td><td>${fmt(c.fa)}</td><td>${fmt(c.na)}</td></tr>`).join('')}</table>` : ''}
+      <details ${hasSims ? '' : 'open'} style="margin-top:10px"><summary class="h5" style="cursor:pointer;display:inline">Estimation automatique de la carte</summary>
+        <div class="${ok ? 'okbox' : 'badbox'}" style="margin-top:6px">${ct.best ? `Poste géolocalisé le plus proche : <b>${esc(ct.best.p.n)}</b> à ${fmtN(ct.best.d, 1)} km — ${ct.best.p.na === null ? 'capacité inconnue' : `${fmtN(ct.best.p.na, 1)} MW disponibles (${ok ? 'suffisant' : 'insuffisant'} pour ${fmtN(ct.P, 1)} MW)`}, file d'attente ${fmtN(ct.best.p.fa, 1)} MW.<br>
+          Raccordement estimé ≤ <b>${fmtN(ct.hi, 0)} k€</b> <span class="mute">(fixe ${COST.fixed / 1000} k€ + quote-part ${fmtN(ct.qpK, 0)} k€ + ${fmtN(ct.best.d, 1)} km × ${COST.cable} €/m ; borne haute, liaison dédiée au poste ; quote-part due seulement dans le S3REnR)</span>` : 'Aucun poste connu.'}</div>
+        <div class="mute" style="font-size:11px;margin:4px 0">Limite : seuls ${postesData.length} postes sur environ 3 100 publiés par Caparéseau ont des coordonnées — le poste source réel peut être plus proche que celui listé.</div>
+        <table class="t"><tr><th>5 postes géolocalisés les plus proches</th><th>Dist.</th><th>Dispo MW</th><th>File MW</th><th>QP €/kW</th></tr>${near}</table></details>
+      ${(pr.prochaines_etapes || []).length ? `<div class="h5">Prochaines étapes</div><ul style="margin:2px 0 0 18px;padding:0">${pr.prochaines_etapes.map((s) => `<li>${esc(s)}</li>`).join('')}</ul>` : ''}
+      ${pr.source_url ? `<a class="btn" style="display:inline-block;text-decoration:none" href="${esc(pr.source_url)}" target="_blank" rel="noopener">Note source (Drive) →</a>` : ''}
+      ${pr.user ? `<button class="btn" onclick="deleteProject('${pr.id}')">Supprimer</button>` : ''}
+    </div>`);
+}
+function createProjectAt(la, lo) {
+  state.creating = false; map.getContainer().style.cursor = ''; $('#btnNew').classList.remove('active'); $('#hint').style.display = 'none';
+  const pr = { id: 'u' + Date.now(), user: true, nom: 'Nouveau projet', lat: +la.toFixed(6), lon: +lo.toFixed(6), puissance_mw: 3, commune: '', statut: 'Projet créé sur la carte', created: new Date().toISOString().slice(0, 10) };
+  projects.push(pr); saveUserProjects(); drawProjects(); renderProjectsList(); showProject(pr.id);
+}
+function editProject(id, k, v) { const p = projects.find((x) => x.id === id); if (!p) return; p[k] = v; saveUserProjects(); drawProjects(); renderProjectsList(); showProject(id); }
+function deleteProject(id) { projects = projects.filter((p) => p.id !== id); saveUserProjects(); drawProjects(); renderProjectsList(); closeDrawer(); }
+
+// =============================================================== tiroir
+function drawer(html) { const d = $('#drawer'); d.innerHTML = html; d.classList.add('open'); d.scrollTop = 0; }
+function closeDrawer() { $('#drawer').classList.remove('open'); }
+function zoomTo(la, lo, z) { map.flyTo([la, lo], z); }
+
+// =============================================================== coffre chiffré (mode en ligne)
+// Format de vault.bin : "BV1" | itérations PBKDF2 (4 octets, big-endian) | sel (16) | IV (12) | AES-256-GCM(gzip(JSON{nom: base64}))
+const VAULT_FILE = (document.querySelector('meta[name="bess-vault"]') || {}).content || null;
+let VAULT = null;
+async function unlockVault(pw) {
+  const buf = new Uint8Array(await fetch(VAULT_FILE, { cache: 'no-store' }).then((r) => { if (!r.ok) throw new Error('coffre introuvable'); return r.arrayBuffer(); }));
+  if (String.fromCharCode(...buf.slice(0, 3)) !== 'BV1') throw new Error('format de coffre inconnu');
+  const iter = new DataView(buf.buffer).getUint32(3), salt = buf.slice(7, 23), iv = buf.slice(23, 35), ct = buf.slice(35);
+  const km = await crypto.subtle.importKey('raw', new TextEncoder().encode(pw), 'PBKDF2', false, ['deriveKey']);
+  const key = await crypto.subtle.deriveKey({ name: 'PBKDF2', salt, iterations: iter, hash: 'SHA-256' }, km, { name: 'AES-GCM', length: 256 }, false, ['decrypt']);
+  const plain = await crypto.subtle.decrypt({ name: 'AES-GCM', iv }, key, ct);          // échoue si mot de passe faux
+  const json = JSON.parse(await new Response(new Blob([plain]).stream().pipeThrough(new DecompressionStream('gzip'))).text());
+  VAULT = {};
+  for (const [k, v] of Object.entries(json)) VAULT[k] = Uint8Array.from(atob(v), (c) => c.charCodeAt(0));
+}
+async function getJSON(name) {
+  if (VAULT) return VAULT[name] ? JSON.parse(new TextDecoder().decode(VAULT[name])) : null;
+  return fetch(name).then((r) => (r.ok ? r.json() : null)).catch(() => null);
+}
+async function getBuffer(name) {
+  if (VAULT) { if (!VAULT[name]) throw new Error('absent du coffre'); return VAULT[name]; }
+  return fetch((new URLSearchParams(location.search).get('data')) || name).then((r) => { if (!r.ok) throw new Error('introuvable'); return r.arrayBuffer(); });
+}
+
+// =============================================================== chargement
+async function loadSites() {
+  try {
+    const buf = await getBuffer('latest.xlsx');
+    const wb = XLSX.read(buf, { type: 'array' }), rd = (n) => (wb.Sheets[n] ? XLSX.utils.sheet_to_json(wb.Sheets[n], { defval: '' }) : []);
+    // « Nouveautés » est volontairement ignorée : « Toutes (classées) » contient les mêmes sites
+    sitesRows = rd('Toutes (classées)').filter((r) => num(r[COL.lat]) !== null);
+    entRows = rd('Entreprises (cibles)'); metRows = rd('Méthanisation');
+    drawSites();
+    drawPoints(entRows, entGroup, '#7a4e00', 'ent'); drawPoints(metRows, metGroup, '#1B5E20', 'met');
+    $('#nEnt').textContent = entRows.length ? `(${entRows.length})` : '(non généré)'; $('#nMet').textContent = metRows.length ? `(${metRows.length})` : '(non généré)';
+    if (!entRows.length) $('#L_ent').disabled = true; if (!metRows.length) $('#L_met').disabled = true;
+  } catch (e) { toast('Classeur latest.xlsx introuvable : les opportunités foncières ne sont pas chargées.'); }
+}
+async function loadAll() {
+  initMap(); renderLegend();
+  const j = getJSON;
+  const [postes, meta, prod, conso, sims] = await Promise.all([j('grid/postes.json'), j('grid/meta.json'), j('grid/prod_communes.json'), j('grid/conso_communes.json'), j('private/simulations.json')]);
+  postesData = postes || []; postesVersion = meta && meta.postes_version;
+  await loadTiles();
+  drawPostes(); posteGroup.addTo(map);
+  if (prod) drawProd(prod); if (conso) drawConso(conso);
+  if (!prod) $('#L_prod').disabled = true; if (!conso) $('#L_conso').disabled = true;
+  projects = [...((sims && sims.projets) || []).map((p) => ({ ...p, source_url: sims.sources && sims.sources[p.source] })), ...loadUserProjects()];
+  drawProjects(); projGroup.addTo(map); renderProjectsList();
+  await loadSites(); siteGroup.addTo(map);
+  $('#footer').innerHTML = meta ? `Caparéseau ${esc(meta.capareseau || '?')} · ${meta.n_postes} postes · HTA ${esc(meta.hta || '?')} · généré le ${esc(meta.genere || '?')}` : 'données du réseau non chargées';
+}
+
+// =============================================================== événements
+$('#layersHead').addEventListener('click', () => { $('#layers').classList.toggle('collapsed'); $('#chev').textContent = $('#layers').classList.contains('collapsed') ? '▸' : '▾'; });
+$$('input[name=view]').forEach((r) => r.addEventListener('change', () => { state.view = r.value; renderLegend(); refreshLines(); restylePostes(); }));
+$('#queueOn').addEventListener('change', (e) => { state.queue = e.target.checked; refreshLines(); restylePostes(); });
+['aerien', 'souterrain'].forEach((k) => $('#L_' + k).addEventListener('change', refreshLines));
+const toggle = (id, layer) => $('#' + id).addEventListener('change', (e) => (e.target.checked ? layer().addTo(map) : map.removeLayer(layer())));
+toggle('L_postes', () => posteGroup); toggle('L_sites', () => siteGroup); toggle('L_ent', () => entGroup); toggle('L_met', () => metGroup);
+toggle('L_prod', () => prodGroup); toggle('L_conso', () => consoGroup); toggle('L_proj', () => projGroup); toggle('L_htb', () => htbLayer || L.layerGroup());
+$('#fSitesToggle').addEventListener('click', (e) => { e.preventDefault(); $('#fSites').classList.toggle('open'); });
+$('#fScore').addEventListener('input', (e) => { sf.score = +e.target.value; $('#fScoreV').textContent = sf.score; drawSites(); });
+$('#fPrice').addEventListener('change', (e) => { sf.price = +e.target.value; drawSites(); });
+$('#fDist').addEventListener('input', (e) => { sf.dist = +e.target.value; $('#fDistV').textContent = sf.dist + ' km'; drawSites(); });
+$$('.chip').forEach((c) => c.addEventListener('click', () => { c.classList.toggle('on'); c.classList.contains('on') ? sf.zones.add(c.dataset.z) : sf.zones.delete(c.dataset.z); drawSites(); }));
+$('#btnProjects').addEventListener('click', () => { $('#projects').classList.toggle('open'); $('#btnProjects').classList.toggle('active'); });
+$('#btnNew').addEventListener('click', () => {
+  state.creating = !state.creating; $('#btnNew').classList.toggle('active', state.creating);
+  map.getContainer().style.cursor = state.creating ? 'crosshair' : '';
+  const h = $('#hint'); h.textContent = 'Cliquez sur la carte pour placer le projet'; h.style.display = state.creating ? 'block' : 'none';
+});
+$('#btnBase').addEventListener('click', () => {
+  state.base = state.base === 'gray' ? 'color' : 'gray';
+  baseOsm.getContainer().classList.toggle('base-gray', state.base === 'gray');
+  $('#btnBase').textContent = 'Fond : ' + (state.base === 'gray' ? 'clair' : 'OpenStreetMap');
+});
+if (window.matchMedia('(max-width: 900px)').matches) { $('#layers').classList.add('collapsed'); $('#chev').textContent = '▸'; }
+async function tryUnlock(pw, remember) {
+  $('#gateErr').textContent = ''; $('#gateBtn').disabled = true; $('#gateBtn').textContent = 'Déchiffrement…';
+  try {
+    await unlockVault(pw);
+    try { if (remember) sessionStorage.setItem('bess_gate', pw); } catch (e) { /* stockage indisponible */ }
+    $('#gate').style.display = 'none'; await loadAll(); return true;
+  } catch (e) {
+    $('#gateErr').textContent = e.name === 'OperationError' ? 'Mot de passe incorrect.' : 'Erreur : ' + e.message;
+    try { sessionStorage.removeItem('bess_gate'); } catch (e2) { /* ignore */ }
+    return false;
+  } finally { $('#gateBtn').disabled = false; $('#gateBtn').textContent = 'Ouvrir'; }
+}
+async function start() {
+  if (!VAULT_FILE) return loadAll();
+  $('#gate').style.display = 'flex'; $('#gatePw').focus();
+  $('#gateBtn').addEventListener('click', () => tryUnlock($('#gatePw').value, true));
+  $('#gatePw').addEventListener('keydown', (e) => { if (e.key === 'Enter') tryUnlock($('#gatePw').value, true); });
+  let saved = null; try { saved = sessionStorage.getItem('bess_gate'); } catch (e) { /* ignore */ }
+  if (saved) tryUnlock(saved, false);          // même onglet : pas de nouvelle saisie après un rechargement
+}
+start();
+</script>
+</body>
+</html>

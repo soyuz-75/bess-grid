@@ -1,0 +1,211 @@
+{
+ "bfc": {
+  "file": "hta/bfc.pmtiles",
+  "name": "bfc",
+  "bounds": [
+   2.8544095,
+   46.15870800000001,
+   7.1383555,
+   48.3836002
+  ],
+  "minzoom": 9,
+  "maxzoom": 13,
+  "mb": 8.2,
+  "kind": "hta",
+  "postes_version": "1527-71688.9587"
+ },
+ "ara": {
+  "file": "hta/ara.pmtiles",
+  "name": "ara",
+  "bounds": [
+   2.0759969,
+   44.11580229999999,
+   7.0580281,
+   46.794217799999984
+  ],
+  "minzoom": 9,
+  "maxzoom": 13,
+  "mb": 17.1,
+  "kind": "hta",
+  "postes_version": "1527-71688.9587"
+ },
+ "bretagne": {
+  "file": "hta/bretagne.pmtiles",
+  "name": "bretagne",
+  "bounds": [
+   -5.1287299,
+   47.2870038,
+   -1.0185673,
+   48.864812300000004
+  ],
+  "minzoom": 9,
+  "maxzoom": 13,
+  "mb": 9.4,
+  "kind": "hta",
+  "postes_version": "1527-71688.9587"
+ },
+ "cvl": {
+  "file": "hta/cvl.pmtiles",
+  "name": "cvl",
+  "bounds": [
+   0.0578527,
+   46.353472599999996,
+   3.1286099,
+   48.93206740000001
+  ],
+  "minzoom": 9,
+  "maxzoom": 13,
+  "mb": 8.8,
+  "kind": "hta",
+  "postes_version": "1527-71688.9587"
+ },
+ "corse": {
+  "file": "hta/corse.pmtiles",
+  "name": "corse",
+  "bounds": [
+   8.574618,
+   41.36893799999999,
+   9.555721000000002,
+   43.006899
+  ],
+  "minzoom": 9,
+  "maxzoom": 13,
+  "mb": 0.8,
+  "kind": "hta",
+  "postes_version": "1527-71688.9587"
+ },
+ "grand-est": {
+  "file": "hta/grand-est.pmtiles",
+  "name": "grand-est",
+  "bounds": [
+   3.3984255,
+   47.422302800000004,
+   8.203668,
+   50.16447070000001
+  ],
+  "minzoom": 9,
+  "maxzoom": 13,
+  "mb": 10.7,
+  "kind": "hta",
+  "postes_version": "1527-71688.9587"
+ },
+ "hdf": {
+  "file": "hta/hdf.pmtiles",
+  "name": "hdf",
+  "bounds": [
+   1.3804985,
+   48.84553650000001,
+   4.2506671,
+   51.0878063
+  ],
+  "minzoom": 9,
+  "maxzoom": 13,
+  "mb": 9.7,
+  "kind": "hta",
+  "postes_version": "1527-71688.9587"
+ },
+ "idf": {
+  "file": "hta/idf.pmtiles",
+  "name": "idf",
+  "bounds": [
+   1.4547815000000002,
+   48.1253272,
+   3.5204275,
+   49.2374945
+  ],
+  "minzoom": 9,
+  "maxzoom": 13,
+  "mb": 7.4,
+  "kind": "hta",
+  "postes_version": "1527-71688.9587"
+ },
+ "normandie": {
+  "file": "hta/normandie.pmtiles",
+  "name": "normandie",
+  "bounds": [
+   -1.9461119000000002,
+   48.1871114,
+   1.7972772000000001,
+   50.0680588
+  ],
+  "minzoom": 9,
+  "maxzoom": 13,
+  "mb": 8.8,
+  "kind": "hta",
+  "postes_version": "1527-71688.9587"
+ },
+ "nouvelle-aquitaine": {
+  "file": "hta/nouvelle-aquitaine.pmtiles",
+  "name": "nouvelle-aquitaine",
+  "bounds": [
+   -1.7861362000000003,
+   42.79637069999999,
+   2.6038940999999998,
+   47.16108030000001
+  ],
+  "minzoom": 9,
+  "maxzoom": 13,
+  "mb": 20.9,
+  "kind": "hta",
+  "postes_version": "1527-71688.9587"
+ },
+ "occitanie": {
+  "file": "hta/occitanie.pmtiles",
+  "name": "occitanie",
+  "bounds": [
+   -0.2922498,
+   42.34874960000001,
+   4.8417702,
+   45.03668739999999
+  ],
+  "minzoom": 9,
+  "maxzoom": 13,
+  "mb": 16.3,
+  "kind": "hta",
+  "postes_version": "1527-71688.9587"
+ },
+ "pdl": {
+  "file": "hta/pdl.pmtiles",
+  "name": "pdl",
+  "bounds": [
+   -2.5555712000000006,
+   46.27014839999999,
+   0.9139912,
+   48.561274399999995
+  ],
+  "minzoom": 9,
+  "maxzoom": 13,
+  "mb": 10.5,
+  "kind": "hta",
+  "postes_version": "1527-71688.9587"
+ },
+ "paca": {
+  "file": "hta/paca.pmtiles",
+  "name": "paca",
+  "bounds": [
+   4.3170803,
+   42.9831492,
+   7.677596499999999,
+   45.06657009999999
+  ],
+  "minzoom": 9,
+  "maxzoom": 13,
+  "mb": 7.8,
+  "kind": "hta",
+  "postes_version": "1527-71688.9587"
+ },
+ "htb": {
+  "file": "hta/htb.pmtiles",
+  "name": "htb",
+  "kind": "htb",
+  "bounds": [
+   -6.5390681,
+   40.5770944,
+   8.1774907,
+   51.393333900000016
+  ],
+  "minzoom": 5,
+  "maxzoom": 11,
+  "mb": 2.5
+ }
+}

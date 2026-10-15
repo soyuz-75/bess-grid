@@ -2,6 +2,8 @@
  "bfc": {
   "file": "hta/bfc.pmtiles",
   "name": "bfc",
+  "kind": "hta",
+  "postes_version": "1531-71873.9033",
   "bounds": [
    2.8544095,
    46.15870800000001,
@@ -10,13 +12,13 @@
   ],
   "minzoom": 9,
   "maxzoom": 13,
-  "mb": 8.2,
-  "kind": "hta",
-  "postes_version": "1527-71688.9587"
+  "mb": 8.2
  },
  "ara": {
   "file": "hta/ara.pmtiles",
   "name": "ara",
+  "kind": "hta",
+  "postes_version": "1531-71873.9033",
   "bounds": [
    2.0759969,
    44.11580229999999,
@@ -25,13 +27,13 @@
   ],
   "minzoom": 9,
   "maxzoom": 13,
-  "mb": 17.1,
-  "kind": "hta",
-  "postes_version": "1527-71688.9587"
+  "mb": 17.1
  },
  "bretagne": {
   "file": "hta/bretagne.pmtiles",
   "name": "bretagne",
+  "kind": "hta",
+  "postes_version": "1531-71873.9033",
   "bounds": [
    -5.1287299,
    47.2870038,
@@ -40,13 +42,13 @@
   ],
   "minzoom": 9,
   "maxzoom": 13,
-  "mb": 9.4,
-  "kind": "hta",
-  "postes_version": "1527-71688.9587"
+  "mb": 9.4
  },
  "cvl": {
   "file": "hta/cvl.pmtiles",
   "name": "cvl",
+  "kind": "hta",
+  "postes_version": "1531-71873.9033",
   "bounds": [
    0.0578527,
    46.353472599999996,
@@ -55,13 +57,13 @@
   ],
   "minzoom": 9,
   "maxzoom": 13,
-  "mb": 8.8,
-  "kind": "hta",
-  "postes_version": "1527-71688.9587"
+  "mb": 8.8
  },
  "corse": {
   "file": "hta/corse.pmtiles",
   "name": "corse",
+  "kind": "hta",
+  "postes_version": "1531-71873.9033",
   "bounds": [
    8.574618,
    41.36893799999999,
@@ -70,13 +72,13 @@
   ],
   "minzoom": 9,
   "maxzoom": 13,
-  "mb": 0.8,
-  "kind": "hta",
-  "postes_version": "1527-71688.9587"
+  "mb": 0.8
  },
  "grand-est": {
   "file": "hta/grand-est.pmtiles",
   "name": "grand-est",
+  "kind": "hta",
+  "postes_version": "1531-71873.9033",
   "bounds": [
    3.3984255,
    47.422302800000004,
@@ -85,13 +87,13 @@
   ],
   "minzoom": 9,
   "maxzoom": 13,
-  "mb": 10.7,
-  "kind": "hta",
-  "postes_version": "1527-71688.9587"
+  "mb": 10.7
  },
  "hdf": {
   "file": "hta/hdf.pmtiles",
   "name": "hdf",
+  "kind": "hta",
+  "postes_version": "1531-71873.9033",
   "bounds": [
    1.3804985,
    48.84553650000001,
@@ -100,13 +102,13 @@
   ],
   "minzoom": 9,
   "maxzoom": 13,
-  "mb": 9.7,
-  "kind": "hta",
-  "postes_version": "1527-71688.9587"
+  "mb": 9.7
  },
  "idf": {
   "file": "hta/idf.pmtiles",
   "name": "idf",
+  "kind": "hta",
+  "postes_version": "1531-71873.9033",
   "bounds": [
    1.4547815000000002,
    48.1253272,
@@ -115,13 +117,13 @@
   ],
   "minzoom": 9,
   "maxzoom": 13,
-  "mb": 7.4,
-  "kind": "hta",
-  "postes_version": "1527-71688.9587"
+  "mb": 7.4
  },
  "normandie": {
   "file": "hta/normandie.pmtiles",
   "name": "normandie",
+  "kind": "hta",
+  "postes_version": "1531-71873.9033",
   "bounds": [
    -1.9461119000000002,
    48.1871114,
@@ -130,13 +132,13 @@
   ],
   "minzoom": 9,
   "maxzoom": 13,
-  "mb": 8.8,
-  "kind": "hta",
-  "postes_version": "1527-71688.9587"
+  "mb": 8.8
  },
  "nouvelle-aquitaine": {
   "file": "hta/nouvelle-aquitaine.pmtiles",
   "name": "nouvelle-aquitaine",
+  "kind": "hta",
+  "postes_version": "1531-71873.9033",
   "bounds": [
    -1.7861362000000003,
    42.79637069999999,
@@ -145,13 +147,13 @@
   ],
   "minzoom": 9,
   "maxzoom": 13,
-  "mb": 20.9,
-  "kind": "hta",
-  "postes_version": "1527-71688.9587"
+  "mb": 20.9
  },
  "occitanie": {
   "file": "hta/occitanie.pmtiles",
   "name": "occitanie",
+  "kind": "hta",
+  "postes_version": "1531-71873.9033",
   "bounds": [
    -0.2922498,
    42.34874960000001,
@@ -160,13 +162,13 @@
   ],
   "minzoom": 9,
   "maxzoom": 13,
-  "mb": 16.3,
-  "kind": "hta",
-  "postes_version": "1527-71688.9587"
+  "mb": 16.3
  },
  "pdl": {
   "file": "hta/pdl.pmtiles",
   "name": "pdl",
+  "kind": "hta",
+  "postes_version": "1531-71873.9033",
   "bounds": [
    -2.5555712000000006,
    46.27014839999999,
@@ -175,13 +177,13 @@
   ],
   "minzoom": 9,
   "maxzoom": 13,
-  "mb": 10.5,
-  "kind": "hta",
-  "postes_version": "1527-71688.9587"
+  "mb": 10.5
  },
  "paca": {
   "file": "hta/paca.pmtiles",
   "name": "paca",
+  "kind": "hta",
+  "postes_version": "1531-71873.9033",
   "bounds": [
    4.3170803,
    42.9831492,
@@ -190,9 +192,7 @@
   ],
   "minzoom": 9,
   "maxzoom": 13,
-  "mb": 7.8,
-  "kind": "hta",
-  "postes_version": "1527-71688.9587"
+  "mb": 7.8
  },
  "htb": {
   "file": "hta/htb.pmtiles",

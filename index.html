@@ -42,6 +42,12 @@
   .sec { margin-top: 10px; padding-top: 8px; border-top: 1px solid var(--line); }
   .sec h4 { margin: 0 0 4px; font-size: 10.5px; letter-spacing: .07em; text-transform: uppercase; color: var(--mute); font-weight: 600; }
   .sec label { display: flex; align-items: center; gap: 7px; padding: 2px 0; cursor: pointer; }
+  .sec label.vw { align-items: flex-start; }
+  .sec label.vw input { margin-top: 3px; }
+  .sec label.vw small { display: block; color: var(--mute); font-size: 11px; line-height: 1.25; }
+  .legend .vhelp { display: block; margin: 6px 0 2px; padding: 7px 9px; background: #f8f9fb; border-radius: 8px; font-size: 11.5px; line-height: 1.4; }
+  .vhelp b { color: #1F3864; }
+  .vhelp p { margin: 0 0 4px; }
   .sec label.dis { color: #aab0ba; cursor: not-allowed; }
   .sec .note { color: var(--mute); font-size: 11px; font-style: italic; margin: 2px 0 0; }
   .dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; flex: none; }
@@ -134,11 +140,12 @@
   <div class="body">
     <div class="sec" style="border-top:0;margin-top:0">
       <h4>Vue réseau</h4>
-      <label><input type="radio" name="view" value="reseau"> Réseau (aérien / souterrain)</label>
-      <label><input type="radio" name="view" value="capacite" checked> Capacité d'accueil (poste source)</label>
-      <label><input type="radio" name="view" value="file"> File d'attente S3REnR</label>
-      <label><input type="radio" name="view" value="remplissage"> Taux de remplissage du schéma</label>
-      <label><input type="radio" name="view" value="postes"> Capacité publiée (Caparéseau) — postes seuls</label>
+      <label class="vw"><input type="radio" name="view" value="reseau"><span>Réseau<small>tracé des lignes HTA, sans donnée de capacité</small></span></label>
+      <label class="vw"><input type="radio" name="view" value="capacite" checked><span>Capacité restante S3REnR<small>réservée − en service − file d'attente</small></span></label>
+      <label class="vw"><input type="radio" name="view" value="sanstravaux"><span>Capacité sans travaux<small>ce que le poste absorbe sans renforcement</small></span></label>
+      <label class="vw"><input type="radio" name="view" value="file"><span>File d'attente S3REnR<small>MW de projets déjà devant vous</small></span></label>
+      <label class="vw"><input type="radio" name="view" value="remplissage"><span>Taux de remplissage du schéma<small>part de la capacité réservée déjà attribuée</small></span></label>
+      <label class="vw"><input type="radio" name="view" value="postes"><span>Postes seuls (capacité publiée)<small>chiffre Caparéseau, lignes en gris</small></span></label>
       <div class="legend" id="legend"></div>
     </div>
     <div class="sec">
@@ -245,9 +252,13 @@ function zoningFamily(r) {
 }
 
 // =============================================================== valeur de capacité d'un poste selon la vue
-function posteNa(p) { return p.na === null ? null : state.queue ? p.na : p.na + (p.fa || 0); }
+function posteNa(p) {
+  if (state.view === 'sanstravaux') return p.sw === undefined ? null : p.sw;
+  return p.na === null ? null : state.queue ? p.na : p.na + (p.fa || 0);
+}
 function posteColor(p) {
   if (!p) return HOST.u;
+  if (state.view === 'sanstravaux') return HOST[hostCls(p.sw === undefined ? null : p.sw)];
   if (state.view === 'file') return HOST[queueCls(p.fa)];
   if (state.view === 'remplissage') return HOST[fillCls(p.tx)];
   return HOST[hostCls(posteNa(p))];
@@ -259,6 +270,7 @@ function lineColor(f, kind) {
   const sameTiles = tilesVersion && tilesVersion === postesVersion;
   const p = props.p !== undefined && sameTiles ? postesData[props.p] : null;
   if (state.view === 'capacite' && !p) return props.h !== undefined && props.h >= 0 && state.queue ? HOST[props.h] : HOST.u;
+  if (state.view === 'sanstravaux' && !p) return HOST.u;
   return posteColor(p);
 }
 function paintRules() {
@@ -279,6 +291,26 @@ function htbRules() {
 }
 function refreshLines() { htaLayers.forEach((l) => { l.paintRules = paintRules(); l.rerenderTiles(); }); }
 
+const VIEW_HELP = {
+  reseau: { quoi: 'Le tracé des lignes moyenne tension (HTA) d\'Enedis et des ELD : plein = aérien, pointillé = souterrain.',
+    lire: 'Aucune couleur de capacité. Sert à repérer où passe le réseau et à mesurer la distance d\'un terrain à la ligne.',
+    limite: 'Source Agence ORE ; ne dit rien de la place disponible sur la ligne.' },
+  capacite: { quoi: 'Le solde du schéma régional (S3REnR) au poste source : capacité réservée − capacité déjà en service − file d\'attente. C\'est le chiffre « capacité restante » publié par Caparéseau.',
+    lire: 'Vert = beaucoup de MW restants, rouge = quasi rien. Chaque tronçon HTA prend la couleur du poste qui l\'alimente. La case « Compter la file d\'attente » décochée donne la borne haute : restant + file, si aucun projet en attente ne se réalise.',
+    limite: 'Solde comptable, pas un test du réseau : un poste peut afficher des MW restants et exiger quand même des travaux (Gray : 2 MW restants, Enedis répond « adaptation de réseau »). A prédit le verdict d\'Enedis dans 5 simulations sur 12.' },
+  sanstravaux: { quoi: 'La puissance que le poste peut accueillir sans nouveaux travaux (RTE_CDR et GRD1_CDR de Caparéseau, on retient le plus grand).',
+    lire: 'Rouge = « adaptation de réseau » probable : raccordement lent (5 ans ou plus) et plus cher. Vert = raccordement possible sans renforcement.',
+    limite: 'Rouge ne veut pas dire impossible, mais que des travaux sont nécessaires. A prédit le verdict d\'Enedis dans 8 simulations sur 12, la meilleure des vues.' },
+  file: { quoi: 'Les MW de projets déjà en file d\'attente S3REnR sur ce poste : ils ont une proposition de raccordement acceptée mais ne sont pas encore raccordés.',
+    lire: 'Vert = aucune file. Rouge = 20 MW ou plus devant vous. Plus la file est longue, plus la capacité restante risque de disparaître avant votre tour.',
+    limite: 'Ne dit pas si la capacité suffit, seulement combien de projets sont devant. Le simulateur d\'Enedis ne tient pas compte de cette file.' },
+  remplissage: { quoi: 'La part de la capacité réservée au poste qui est déjà attribuée : (en service + file d\'attente) / capacité réservée.',
+    lire: 'Vert < 50 %, rouge ≥ 95 % (schéma plein). Un poste plein exige une révision du schéma ou des travaux, quelle que soit sa taille.',
+    limite: 'Un pourcentage : 95 % d\'un petit poste peut laisser moins de MW que 60 % d\'un grand. Regarder aussi les MW.' },
+  postes: { quoi: 'Les postes sources seuls, colorés par la capacité restante publiée par Caparéseau. Les lignes passent en gris.',
+    lire: 'Mêmes valeurs que la vue « Capacité restante », sans la coloration des lignes. Cliquer un poste ouvre sa fiche détaillée.',
+    limite: 'Même limite que la capacité restante : un solde comptable.' }
+};
 function renderLegend() {
   const items = state.view === 'reseau'
     ? [['#2a6fdb', 'HTA aérien'], ['#e8890c', 'HTA souterrain (pointillés)']]
@@ -287,8 +319,10 @@ function renderLegend() {
       : state.view === 'remplissage'
         ? [[HOST[3], '< 50 %'], [HOST[2], '50 – 80 %'], [HOST[1], '80 – 95 %'], [HOST[0], '≥ 95 % (schéma plein)'], [HOST.u, 'Poste inconnu']]
         : [[HOST[0], hostLabel[0]], [HOST[1], hostLabel[1]], [HOST[2], hostLabel[2]], [HOST[3], hostLabel[3]], [HOST.u, hostLabel.u]];
-  const note = state.view === 'reseau' ? '' : '<div class="mute" style="margin-top:3px">Chaque tronçon prend la valeur du poste source qui l\'alimente par le réseau : proxy, pas une capacité par ligne.</div>';
-  $('#legend').innerHTML = items.map(([c, t]) => `<div><span class="ln" style="border-top:3px solid ${c}"></span>${t}</div>`).join('') + note;
+  const h = VIEW_HELP[state.view];
+  const note = h ? `<div class="vhelp"><p><b>Ce que ça montre.</b> ${h.quoi}</p><p><b>Comment lire.</b> ${h.lire}</p><p class="mute"><b>Limite.</b> ${h.limite}</p></div>` : '';
+  const proxy = ['reseau', 'postes'].includes(state.view) ? '' : '<div class="mute" style="margin-top:3px">Chaque tronçon prend la valeur du poste source qui l\'alimente : approximation, pas une capacité mesurée sur la ligne.</div>';
+  $('#legend').innerHTML = items.map(([c, t]) => `<div><span class="ln" style="border-top:3px solid ${c}"></span>${t}</div>`).join('') + proxy + note;
 }
 
 // =============================================================== carte
@@ -355,6 +389,7 @@ function showPoste(i) {
       <div class="h5">Budget de capacité réservée (S3REnR)</div>
       <div class="bar">${seg(es, '#1F3864')}${seg(fa, '#f08c00')}${seg(na, '#2f9e44')}</div>
       <div class="barlg"><span>■ <b style="color:#1F3864">en service</b> ${fmtN(p.es)} MW</span><span>■ <b style="color:#f08c00">file d'attente</b> ${fmtN(p.fa)} MW</span><span>■ <b style="color:#2f9e44">disponible</b> ${fmtN(p.na)} MW</span></div>
+      <div class="kv"><span>Disponible sans travaux (RTE/Enedis)</span><span><b>${p.sw === undefined ? '—' : fmtN(p.sw, 1) + ' MW'}</b></span></div>
       <div class="kv"><span>Capacité réservée</span><span>${fmtN(p.cr)} MW</span></div>
       <div class="kv"><span>Taux de remplissage</span><span>${fmtN(p.tx, 0, ' %')}</span></div>
       <div class="kv"><span>Quote-part</span><span>${fmtN(p.qp, 2, ' €/kW')}${p.qp ? ` (${fmtN(p.qp, 1)} k€/MW)` : ''}</span></div>
@@ -479,7 +514,7 @@ function drawProjects() {
 }
 function renderProjectsList() {
   const given = projects.filter((p) => !p.user), mine = projects.filter((p) => p.user);
-  const card = (p) => `<div class="proj" onclick="showProject('${p.id}', true)"><b>${esc(p.nom)}</b><small>${esc(p.commune || '')} · ${fmtN(p.puissance_mw, 2)} MW${(p.simulations || []).length ? ` · ${p.simulations.length} simulation(s) Enedis` : ''}</small><br><small>${esc(p.statut || '')}</small></div>`;
+  const card = (p) => `<div class="proj" onclick="showProject('${p.id}', true)"><b>${esc(p.nom)}</b><small>${esc(p.commune || '')} · ${fmtN(p.puissance_mw, 2)} MW${(p.simulations || []).length ? ` · ${p.simulations.length} simulation(s) Enedis` : ''}</small><br><small>${esc(p.statut || '')}</small>${(p.alias || []).length ? `<br><small class="mute">${esc(p.alias.join(' · ').slice(0, 90))}</small>` : ''}</div>`;
   $('#projects').innerHTML = `<h3>Projets avec simulations Enedis</h3>${given.length ? given.map(card).join('') : '<div class="empty">Aucun fichier de simulations chargé (private/simulations.json).</div>'}
     <h3>Mes projets</h3>${mine.length ? mine.map(card).join('') : '<div class="empty">Cliquez sur « Créer un projet » puis sur la carte.</div>'}
     <div style="padding:8px 14px"><button class="btn" onclick="exportProjects()">Exporter mes projets (JSON)</button></div>`;
@@ -490,14 +525,17 @@ function exportProjects() {
 }
 function simTable(sims) {
   if (!sims || !sims.length) return '';
-  const L = (s) => (s.longueur_corrigee_m ? `${fmtN(s.longueur_m, 0)} → <b>${fmtN(s.longueur_corrigee_m, 0)} m</b>` : s.longueur_m >= 1000 ? `<b>${fmtN(s.longueur_m / 1000, 1)} km</b>` : `<b>${fmtN(s.longueur_m, 0)} m</b>`);
-  return `<table class="t"><tr><th>N°</th><th>Usage</th><th>kW</th><th>Longueur</th><th>Poste source</th></tr>
-    ${sims.map((s) => `<tr><td>${esc(s.n || '—')}<br><span class="mute">${esc(s.date || '')}</span></td><td>${esc(s.usage)}<br><span class="mute">${esc(s.point || '')}</span></td><td>${fmtN(s.puissance_kw, 0)}</td><td>${L(s)}</td><td>${esc(s.poste_source || '')}${s.tan_phi !== undefined ? `<br><span class="mute">tan φ ${s.tan_phi}</span>` : ''}</td></tr>`).join('')}</table>
-    <div class="mute" style="font-size:11px;margin-top:3px">Statut Enedis : ${esc([...new Set(sims.map((s) => s.statut))].join(' ; '))}. Résultats indicatifs, non engageants ; le simulateur ignore la file d'attente du départ HTA et plafonne à 2 MW.</div>`;
+  const len = (s) => (s.longueur_corrigee_m ? `${fmtN(s.longueur_m, 0)} → <b>${fmtN(s.longueur_corrigee_m, 0)} m</b>`
+    : s.longueur_m >= 1000 ? `<b>${fmtN(s.longueur_m / 1000, 1)} km</b>` : s.longueur_m ? `<b>${fmtN(s.longueur_m, 0)} m</b>` : `<span class="mute">${esc(s.statut || '—')}</span>`);
+  const cmp = (s) => (s.outil_dist_hta_m !== undefined && s.longueur_m ? `<br><span class="mute" title="Distance au réseau HTA le plus proche (ORE) calculée par l'outil">outil : ${fmtN(s.outil_dist_hta_m, 0)} m</span>` : '');
+  const sorted = [...sims].sort((a, b) => String(b.date || '').localeCompare(String(a.date || '')));
+  return `<table class="t"><tr><th>N°</th><th>Usage</th><th>kW</th><th>Résultat</th><th>Poste source</th></tr>
+    ${sorted.map((s) => `<tr><td>${esc(s.n || '—')}<br><span class="mute">${esc(s.date || '')}</span></td><td>${esc(s.usage)}<br><span class="mute">${esc(s.poste_client || s.point || '')}</span></td><td>${fmtN(s.puissance_kw, 0)}</td><td>${len(s)}${cmp(s)}${s.longueur_m ? `<br><span class="mute">${esc(s.statut || '')}</span>` : (s.delai ? `<br><span class="mute">délai ${esc(s.delai)}</span>` : '')}</td><td>${esc(s.poste_source || '—')}${s.tan_phi !== undefined && s.tan_phi !== null ? `<br><span class="mute">tan φ ${s.tan_phi}</span>` : ''}</td></tr>`).join('')}</table>
+    <div class="mute" style="font-size:11px;margin-top:3px">Résultats indicatifs, non engageants ; le simulateur ignore la file d'attente du départ HTA et plafonne à 2 MW. « outil » = distance au réseau HTA calculée par la carte.</div>`;
 }
 function simCostBox(pr) {
   // coût indicatif dérivé des longueurs simulées (hors quote-part : projets hors S3REnR)
-  const best = (usage) => (pr.simulations || []).filter((x) => x.usage.startsWith(usage) && x.longueur_m)
+  const best = (usage) => (pr.simulations || []).filter((x) => String(x.usage || '').startsWith(usage) && x.longueur_m)
     .map((x) => ({ ...x, len: x.longueur_corrigee_m || x.longueur_m })).sort((a, b) => b.len - a.len)[0];
   const line = (lbl, x) => x ? `<div class="kv"><span>${lbl} (${fmtN(x.puissance_kw, 0)} kW, n° ${esc(x.n || '—')})</span><span>${fmtN(x.len, 0)} m → ≈ <b>${fmtN((COST.fixed + x.len * COST.cable) / 1000, 0)} k€</b></span></div>` : '';
   const rows = line('Injection', best('production')) + line('Soutirage', best('consommation')) + (!best('production') && !best('consommation') ? line('Simulation', (pr.simulations || [])[0] && { ...pr.simulations[0], len: pr.simulations[0].longueur_m }) : '');
@@ -523,14 +561,14 @@ function showProject(id, fly) {
         <div class="kv"><span>Statut</span><span>${esc(pr.statut || '—')}</span></div>`}
       ${hasSims ? `<div class="h5">Simulations Enedis</div>${simTable(pr.simulations)}${simCostBox(pr)}` : ''}
       ${pr.conclusion ? `<div class="h5">Conclusion</div><div>${esc(pr.conclusion)}</div>` : ''}
-      ${ctx.length ? `<div class="h5">Contexte réseau (note de faisabilité)</div><table class="t"><tr><th>Poste</th><th>Dist.</th><th>Réservé</th><th>File</th><th>Dispo</th></tr>${ctx.map((c) => `<tr><td>${esc(c.poste)}${c.remarque ? `<br><span class="mute">${esc(c.remarque)}</span>` : ''}</td><td>${fmt(c.dist_km, ' km')}</td><td>${fmt(c.cr)}</td><td>${fmt(c.fa)}</td><td>${fmt(c.na)}</td></tr>`).join('')}</table>` : ''}
+      ${ctx.length ? `<div class="h5">Contexte réseau (Caparéseau)</div><table class="t"><tr><th>Poste</th><th>Dist.</th><th>Réservé</th><th>File</th><th>Dispo</th></tr>${ctx.map((c) => `<tr><td>${esc(c.poste)}${c.remarque ? `<br><span class="mute">${esc(c.remarque)}</span>` : ''}</td><td>${fmt(c.dist_km, ' km')}</td><td>${fmt(c.cr)}</td><td>${fmt(c.fa)}</td><td>${fmt(c.na)}</td></tr>`).join('')}</table>` : ''}
       <details ${hasSims ? '' : 'open'} style="margin-top:10px"><summary class="h5" style="cursor:pointer;display:inline">Estimation automatique de la carte</summary>
         <div class="${ok ? 'okbox' : 'badbox'}" style="margin-top:6px">${ct.best ? `Poste géolocalisé le plus proche : <b>${esc(ct.best.p.n)}</b> à ${fmtN(ct.best.d, 1)} km — ${ct.best.p.na === null ? 'capacité inconnue' : `${fmtN(ct.best.p.na, 1)} MW disponibles (${ok ? 'suffisant' : 'insuffisant'} pour ${fmtN(ct.P, 1)} MW)`}, file d'attente ${fmtN(ct.best.p.fa, 1)} MW.<br>
           Raccordement estimé ≤ <b>${fmtN(ct.hi, 0)} k€</b> <span class="mute">(fixe ${COST.fixed / 1000} k€ + quote-part ${fmtN(ct.qpK, 0)} k€ + ${fmtN(ct.best.d, 1)} km × ${COST.cable} €/m ; borne haute, liaison dédiée au poste ; quote-part due seulement dans le S3REnR)</span>` : 'Aucun poste connu.'}</div>
         <div class="mute" style="font-size:11px;margin:4px 0">Limite : seuls ${postesData.length} postes sur environ 3 100 publiés par Caparéseau ont des coordonnées — le poste source réel peut être plus proche que celui listé.</div>
         <table class="t"><tr><th>5 postes géolocalisés les plus proches</th><th>Dist.</th><th>Dispo MW</th><th>File MW</th><th>QP €/kW</th></tr>${near}</table></details>
       ${(pr.prochaines_etapes || []).length ? `<div class="h5">Prochaines étapes</div><ul style="margin:2px 0 0 18px;padding:0">${pr.prochaines_etapes.map((s) => `<li>${esc(s)}</li>`).join('')}</ul>` : ''}
-      ${pr.source_url ? `<a class="btn" style="display:inline-block;text-decoration:none" href="${esc(pr.source_url)}" target="_blank" rel="noopener">Note source (Drive) →</a>` : ''}
+      ${pr.source_url ? `<a class="btn" style="display:inline-block;text-decoration:none" href="${esc(pr.source_url)}" target="_blank" rel="noopener">${pr.source === 'compte-enedis' ? 'Compte Enedis →' : 'Note source (Drive) →'}</a>` : ''}
       ${pr.user ? `<button class="btn" onclick="deleteProject('${pr.id}')">Supprimer</button>` : ''}
     </div>`);
 }

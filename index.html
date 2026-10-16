@@ -35,7 +35,7 @@
   .empty { padding: 10px 14px; color: var(--mute); }
 
   /* haut droite : couches */
-  #layers { position: fixed; top: 12px; right: 12px; z-index: 1000; width: 300px; max-height: calc(100vh - 80px); overflow: auto; }
+  #layers { position: fixed; top: 12px; right: 12px; z-index: 1000; width: 300px; max-height: calc(100vh - 200px); overflow: auto; }
   #layers > header { display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; cursor: pointer; font-weight: 600; }
   #layers .body { padding: 0 14px 12px; }
   #layers.collapsed .body { display: none; }
@@ -62,7 +62,7 @@
   .chip.on { background: var(--accent); border-color: var(--accent); color: #fff; }
 
   /* tiroir de détail */
-  #drawer { position: fixed; top: 12px; right: 324px; z-index: 1001; width: 380px; max-height: calc(100vh - 100px); overflow: auto; display: none; }
+  #drawer { position: fixed; top: 60px; right: 324px; z-index: 1001; width: 380px; max-height: calc(100vh - 150px); overflow: auto; display: none; }
   #drawer.open { display: block; }
   #drawer .head { position: sticky; top: 0; background: var(--card); padding: 12px 14px 8px; border-bottom: 1px solid var(--line); z-index: 1; }
   #drawer .head h2 { margin: 0 24px 2px 0; font-size: 16px; }
@@ -94,12 +94,12 @@
   .btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
   .mute { color: var(--mute); }
   a { color: #1c5bd9; }
-  input[type=number], input[type=text] { font: inherit; padding: 4px 6px; border: 1px solid var(--line); border-radius: 6px; width: 100%; }
+  input[type=number], input[type=text], input[type=search] { font: inherit; padding: 4px 6px; border: 1px solid var(--line); border-radius: 6px; width: 100%; }
 
   #footer { position: fixed; left: 12px; bottom: 12px; z-index: 1000; padding: 5px 10px; font-size: 11px; color: var(--mute); }
-  #basemap { position: fixed; right: 12px; bottom: 28px; z-index: 1000; display: flex; flex-direction: column; align-items: stretch; }
+  #basemap { position: fixed; right: 12px; bottom: 96px; z-index: 1000; display: flex; flex-direction: column; align-items: stretch; }
   #toast { position: fixed; top: 64px; left: 50%; transform: translateX(-50%); z-index: 2000; background: var(--accent); color: #fff; padding: 8px 16px; border-radius: 999px; display: none; box-shadow: var(--shadow); }
-  #hint { position: fixed; left: 50%; bottom: 14px; transform: translateX(-50%); z-index: 1000; padding: 4px 12px; border-radius: 999px; font-size: 11.5px; color: var(--mute); display: none; }
+  #hint { position: fixed; left: 50%; top: 60px; transform: translateX(-50%); z-index: 1000; padding: 4px 12px; border-radius: 999px; font-size: 11.5px; color: var(--mute); display: none; }
   #gate { position: fixed; inset: 0; z-index: 5000; display: none; align-items: center; justify-content: center; background: rgba(244,245,247,.98); }
   #gate .box { width: 340px; padding: 26px 24px; text-align: center; }
   #gate h2 { margin: 0 0 4px; font-size: 20px; color: var(--accent); }
@@ -107,6 +107,51 @@
   #gate input { margin-bottom: 10px; text-align: center; padding: 9px; }
   #gate .btn { width: 100%; margin: 0; padding: 9px; }
   #gateErr { color: #c92a2a; min-height: 18px; margin-top: 8px; font-size: 12px; }
+  /* recherche */
+  #search { position: fixed; top: 12px; left: 50%; transform: translateX(-50%); z-index: 1002; width: 400px; }
+  #search input { padding: 9px 14px; border: 0; border-radius: 10px; box-shadow: var(--shadow); }
+  #searchRes { margin-top: 6px; max-height: 50vh; overflow: auto; display: none; padding: 4px 0; }
+  #searchRes.open { display: block; }
+  #searchRes div { padding: 7px 14px; cursor: pointer; display: flex; gap: 8px; align-items: baseline; }
+  #searchRes div:hover, #searchRes div.sel { background: #f2f4f7; }
+  #searchRes small { color: var(--mute); margin-left: auto; white-space: nowrap; }
+  /* frise des travaux */
+  #timeline { position: fixed; bottom: 46px; left: 50%; transform: translateX(-50%); z-index: 1000; display: flex; align-items: center; gap: 2px; padding: 4px 6px; }
+  #timeline span { color: var(--mute); font-size: 11px; padding: 0 6px; }
+  #timeline button { white-space: nowrap; border: 0; background: none; border-radius: 7px; padding: 5px 8px; font-size: 11.5px; color: var(--ink); }
+  #timeline button:hover { background: #f2f4f7; }
+  #timeline button.on { background: #e5dbff; color: #4c2fb0; font-weight: 600; }
+  /* onglets, étapes, options */
+  .tabs { display: flex; gap: 4px; margin-top: 8px; }
+  .tabs button { border: 1px solid var(--line); background: #fff; border-radius: 8px; padding: 4px 10px; font-size: 12px; }
+  .tabs button.on { background: #ede7ff; border-color: #c5b3ff; color: #4c2fb0; font-weight: 600; }
+  .wf { width: 100%; border-collapse: collapse; margin: 4px 0; }
+  .wf td { padding: 3px 4px; }
+  .wf td.op { width: 14px; color: var(--mute); }
+  .wf td.v { text-align: right; font-weight: 600; width: 60px; }
+  .wf td.src { text-align: right; color: var(--mute); font-size: 10.5px; }
+  .wf tr.tot td { border-top: 1px solid var(--ink); font-weight: 700; }
+  .badge { display: inline-block; border-radius: 999px; padding: 0 7px; font-size: 10.5px; font-weight: 600; }
+  .badge.pub { background: #e6f4ea; color: #1e7b34; }
+  .badge.est { background: #fff1db; color: #b35c00; }
+  .cols { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .big { font-size: 22px; font-weight: 700; }
+  .step { border: 1px solid var(--line); border-radius: 10px; padding: 8px 10px; margin-top: 10px; }
+  .step > b { display: flex; align-items: center; gap: 7px; }
+  .step > b i { font-style: normal; width: 20px; height: 20px; border-radius: 50%; background: var(--accent); color: #fff; font-size: 11px; display: inline-flex; align-items: center; justify-content: center; }
+  .step.done > b i { background: #2f9e44; }
+  .opt { border: 1px solid var(--line); border-radius: 9px; padding: 7px 9px; margin-top: 6px; cursor: pointer; }
+  .opt:hover { border-color: #b197fc; }
+  .opt.sel { border-color: #6741d9; background: #f8f5ff; }
+  .opt .L { display: inline-flex; width: 18px; height: 18px; border-radius: 50%; background: #6741d9; color: #fff; font-size: 11px; font-weight: 700; align-items: center; justify-content: center; margin-right: 5px; }
+  .ok { color: #1e7b34; } .ko { color: #c92a2a; }
+  .seg { display: flex; justify-content: space-between; gap: 8px; padding: 3px 4px; border-left: 3px solid #2b2d6e; margin: 2px 0; cursor: default; border-radius: 3px; }
+  .seg:hover { background: #f8f5ff; border-left-color: #e64980; }
+  .ramp { height: 8px; border-radius: 4px; margin: 4px 0 2px; background: linear-gradient(90deg, #c92a2a, #f08c00 25%, #c9b500 66%, #2f9e44); }
+  .rampl { display: flex; justify-content: space-between; font-size: 10.5px; color: var(--mute); }
+  #modal { position: fixed; inset: 0; z-index: 3000; display: none; align-items: center; justify-content: center; background: rgba(16,24,40,.25); }
+  #modal .box { width: 340px; padding: 18px; }
+  #modal h3 { margin: 0 0 10px; font-size: 15px; }
   .leaflet-container { font: inherit; }
   .leaflet-control-attribution { font-size: 10px; }
   .leaflet-bottom.leaflet-right { margin-bottom: 0; }
@@ -116,6 +161,10 @@
     #drawer { right: 12px; left: 12px; width: auto; top: auto; bottom: 52px; max-height: 55vh; }
     #projects { width: calc(100vw - 24px); }
     #basemap { display: none; }
+    #search { top: 58px; width: calc(100vw - 24px); }
+    #hint { top: 104px; }
+    #timeline { bottom: auto; top: 104px; max-width: calc(100vw - 24px); overflow-x: auto; }
+    .cols { grid-template-columns: 1fr; }
   }
 </style>
 </head>
@@ -132,6 +181,9 @@
   <button class="pill primary" id="btnNew">＋ Créer un projet</button>
 </div>
 <div id="projects" class="card"></div>
+<div id="search"><input type="search" id="q" placeholder="Rechercher un poste, un projet, une adresse" autocomplete="off"><div id="searchRes" class="card"></div></div>
+<div id="timeline" class="card"></div>
+<div id="modal"><div class="card box" id="modalBox"></div></div>
 <div id="toast"></div>
 <div id="hint" class="card"></div>
 
@@ -141,18 +193,20 @@
     <div class="sec" style="border-top:0;margin-top:0">
       <h4>Vue réseau</h4>
       <label class="vw"><input type="radio" name="view" value="reseau"><span>Réseau<small>tracé des lignes HTA, sans donnée de capacité</small></span></label>
-      <label class="vw"><input type="radio" name="view" value="capacite" checked><span>Capacité restante S3REnR<small>réservée − en service − file d'attente</small></span></label>
-      <label class="vw"><input type="radio" name="view" value="sanstravaux"><span>Capacité sans travaux<small>ce que le poste absorbe sans renforcement</small></span></label>
-      <label class="vw"><input type="radio" name="view" value="file"><span>File d'attente S3REnR<small>MW de projets déjà devant vous</small></span></label>
-      <label class="vw"><input type="radio" name="view" value="remplissage"><span>Taux de remplissage du schéma<small>part de la capacité réservée déjà attribuée</small></span></label>
-      <label class="vw"><input type="radio" name="view" value="postes"><span>Postes seuls (capacité publiée)<small>chiffre Caparéseau, lignes en gris</small></span></label>
+      <label class="vw"><input type="radio" name="view" value="ligne"><span>Capacité par ligne (estimée)<small>MW qu'un tronçon peut encore accueillir</small></span></label>
+      <label class="vw" data-inj><input type="radio" name="view" value="capacite" checked><span>Capacité restante S3REnR<small>réservée − en service − file d'attente</small></span></label>
+      <label class="vw" data-inj><input type="radio" name="view" value="sanstravaux"><span>Capacité sans travaux<small>ce que le poste absorbe sans renforcement</small></span></label>
+      <label class="vw"><input type="radio" name="view" value="transfo"><span>Marge du transformateur (estimée)<small>puissance des transfos − pointe de production ou de consommation</small></span></label>
+      <label class="vw" data-inj><input type="radio" name="view" value="file"><span>File d'attente S3REnR<small>MW de projets déjà devant vous</small></span></label>
+      <label class="vw" data-inj><input type="radio" name="view" value="remplissage"><span>Taux de remplissage du schéma<small>part de la capacité réservée déjà attribuée</small></span></label>
+      <label class="vw" data-inj><input type="radio" name="view" value="postes"><span>Postes seuls (capacité publiée)<small>chiffre Caparéseau, lignes en gris</small></span></label>
       <div class="legend" id="legend"></div>
     </div>
     <div class="sec">
       <h4>Sens</h4>
-      <label><input type="radio" name="dir" checked> Injection (production)</label>
-      <label class="dis"><input type="radio" name="dir" disabled> Soutirage (consommation)</label>
-      <div class="note">Caparéseau ne publie que l'injection ; le soutirage n'a pas de données ouvertes.</div>
+      <label><input type="radio" name="dir" value="inj" checked> Injection (production, décharge BESS)</label>
+      <label><input type="radio" name="dir" value="sout"> Soutirage (consommation, charge BESS)</label>
+      <div class="note">Le soutirage n'est pas publié par Caparéseau : il est estimé (transformateurs − pointe de consommation d'hiver).</div>
     </div>
     <div class="sec">
       <h4>File d'attente</h4>
@@ -183,6 +237,13 @@
       <label><input type="checkbox" id="L_met"><span class="dot" style="background:#1B5E20"></span> Méthaniseurs <span class="mute" id="nMet"></span></label>
     </div>
     <div class="sec">
+      <h4>Projets concurrents</h4>
+      <label><input type="checkbox" id="L_env"><span class="dot" style="background:#e8590c;border-radius:2px;transform:rotate(45deg)"></span> Projets en développement <span class="mute" id="nEnv"></span></label>
+      <div class="legend" style="margin-left:22px"><div><span class="dot" style="background:#f59f00"></span>PV · <span class="dot" style="background:#0ca678"></span>éolien · <span class="dot" style="background:#1c7ed6"></span>hydro · <span class="dot" style="background:#ae3ec9"></span>stockage</div></div>
+      <label style="margin-left:22px"><input type="checkbox" id="envRecent" checked> depuis 2023 seulement</label>
+      <div class="note">Étude d'impact / avis AE (projets-environnement.gouv.fr) et cas par cas (DREAL Bretagne). Rattachés au poste le plus proche.</div>
+    </div>
+    <div class="sec">
       <h4>Données ouvertes</h4>
       <label><input type="checkbox" id="L_prod"><span class="dot" style="background:#f08c00"></span> Production raccordée HTA (par commune)</label>
       <label><input type="checkbox" id="L_conso"><span class="dot" style="background:#7048e8"></span> Consommation industrielle (par commune)</label>
@@ -197,7 +258,7 @@
 
 <div id="drawer" class="card"></div>
 <div id="footer" class="card">chargement des données…</div>
-<div id="basemap"><button class="pill" id="btnBase">Fond : clair</button></div>
+<div id="basemap"><button class="pill" id="btnEval" style="margin-bottom:6px">📊 Évaluation du modèle</button><button class="pill" id="btnBase">Fond : clair</button></div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="https://unpkg.com/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
@@ -215,12 +276,14 @@ const COL = {
   capacite: "Capacité poste (MW)", plu: "Zone PLU", zoneEco: "Zone éco (UE/UI/UX)",
   inondation: "Risque inondation (AZI)", proteges: "Espaces protégés / Natura 2000", score: "SCORE COMBINÉ",
 };
-const state = { view: 'capacite', queue: true, creating: false, base: 'gray' };
+const state = { view: 'capacite', dir: 'inj', queue: true, creating: false, drawing: null, base: 'gray', year: null, posteTab: 'pub' };
 let map, baseOsm, canvas;
 let postesData = [], postesVersion = null, tilesVersion = null;
 let htaLayers = [], htbLayer = null, posteGroup, siteGroup, entGroup, metGroup, prodGroup, consoGroup, projGroup;
 let sitesRows = [], entRows = [], metRows = [];
 let projects = [];            // projets fournis (simulations) + projets créés (localStorage)
+let evaluation = null, manifest = {};
+let envRows = [], envGroup, envLinks = null;            // projets concurrents : [lat, lon, techno, MW, étape, date, titre, commune, liens, stockage, poste, km]
 let selected = null;
 
 // =============================================================== utilitaires
@@ -252,12 +315,47 @@ function zoningFamily(r) {
 }
 
 // =============================================================== valeur de capacité d'un poste selon la vue
+const INJ_ONLY = ['capacite', 'sanstravaux', 'file', 'remplissage', 'postes'];
 function posteNa(p) {
   if (state.view === 'sanstravaux') return p.sw === undefined ? null : p.sw;
+  if (state.view === 'transfo') return transfoMargin(p);
+  if (state.view === 'ligne') return posteHead(p);
   return p.na === null ? null : state.queue ? p.na : p.na + (p.fa || 0);
+}
+// marge estimée du transformateur dans le sens choisi (file d'attente S3REnR déduite en injection si la case est cochée)
+function transfoMargin(p, dir = state.dir) {
+  if (!p || !p.tg) return null;
+  return dir === 'sout' ? p.tg.ms : p.tg.mi + (state.queue ? 0 : (p.fa || 0));
+}
+// MW qu'un poste peut encore accueillir, toutes contraintes connues : publié (sans travaux) et transformateur estimé
+function posteHead(p, dir = state.dir) {
+  if (!p) return null;
+  const t = transfoMargin(p, dir);
+  if (dir === 'sout') return t;
+  const pub = p.sw !== undefined && p.sw !== null ? p.sw + (state.queue ? 0 : (p.fa || 0)) : (p.na === null ? null : p.na + (state.queue ? 0 : (p.fa || 0)));
+  return pub === null ? t : t === null ? pub : Math.min(pub, t);
+}
+// capacité d'un tronçon HTA (MW) : min(poste, limite thermique du câble, élévation de tension ∝ 1/distance au poste)
+const LINE = { th: { aerien: 8, souterrain: 12 }, r: { aerien: 0.15, souterrain: 0.12 }, dU: 8 };  // dU = 2 % × (20 kV)²
+function lineMW(props, kind, dir = state.dir) {
+  const p = props && props.p !== undefined && tilesVersion && tilesVersion === postesVersion ? postesData[props.p] : null;
+  const head = posteHead(p, dir);
+  if (head === null || props.d === undefined) return null;
+  return Math.max(0, Math.min(head, LINE.th[kind] || 8, LINE.dU / ((LINE.r[kind] || 0.15) * Math.max(props.d, 0.3))));
+}
+const RAMP = [[0, [201, 42, 42]], [3, [240, 140, 0]], [8, [201, 181, 0]], [12, [47, 158, 68]]];
+function rampColor(v) {
+  if (v === null || v === undefined || Number.isNaN(v)) return HOST.u;
+  if (v >= 12) return 'rgb(47,158,68)';
+  for (let k = 1; k < RAMP.length; k++) {
+    const [x1, c1] = RAMP[k], [x0, c0] = RAMP[k - 1];
+    if (v <= x1) { const t = Math.max(0, (v - x0) / (x1 - x0)); return `rgb(${c0.map((c, j) => Math.round(c + (c1[j] - c) * t)).join(',')})`; }
+  }
+  return 'rgb(47,158,68)';
 }
 function posteColor(p) {
   if (!p) return HOST.u;
+  if (state.view === 'ligne') return rampColor(posteHead(p));
   if (state.view === 'sanstravaux') return HOST[hostCls(p.sw === undefined ? null : p.sw)];
   if (state.view === 'file') return HOST[queueCls(p.fa)];
   if (state.view === 'remplissage') return HOST[fillCls(p.tx)];
@@ -267,10 +365,11 @@ function lineColor(f, kind) {
   const props = (f && f.props) || {};
   if (state.view === 'reseau') return kind === 'souterrain' ? '#e8890c' : '#2a6fdb';
   if (state.view === 'postes') return '#aab0b8';
+  if (state.view === 'ligne') return rampColor(lineMW(props, kind));
   const sameTiles = tilesVersion && tilesVersion === postesVersion;
   const p = props.p !== undefined && sameTiles ? postesData[props.p] : null;
   if (state.view === 'capacite' && !p) return props.h !== undefined && props.h >= 0 && state.queue ? HOST[props.h] : HOST.u;
-  if (state.view === 'sanstravaux' && !p) return HOST.u;
+  if (!p) return HOST.u;
   return posteColor(p);
 }
 function paintRules() {
@@ -292,6 +391,12 @@ function htbRules() {
 function refreshLines() { htaLayers.forEach((l) => { l.paintRules = paintRules(); l.rerenderTiles(); }); }
 
 const VIEW_HELP = {
+  ligne: { quoi: 'Une estimation des MW qu\'un projet raccordé sur ce tronçon pourrait encore injecter (ou soutirer, selon le sens choisi) : le plus petit de trois plafonds — ce qui reste au poste source (publié sans travaux et marge du transformateur), la limite thermique du câble (≈ 8 MW en aérien, 12 MW en souterrain à 20 kV) et l\'élévation de tension, qui baisse avec la distance au poste par le réseau.',
+    lire: 'Vert ≥ 12 MW, jaune ≈ 8 MW, orange ≈ 3 MW, rouge ≈ 0. Les lignes rouges loin du poste sont limitées par la tension, celles proches du poste par le poste lui-même.',
+    limite: 'Modèle simplifié : sections de câble, charges et autres producteurs du départ inconnus, schéma d\'exploitation (points d\'ouverture) ignoré. Pour classer des zones, pas pour dimensionner un projet.' },
+  transfo: { quoi: 'La marge du transformateur HTB/HTA du poste source, estimée : puissance des transformateurs (Caparéseau) − pointe de production des installations raccordées en HTA/BT (registre ODRÉ : PV 80 %, éolien 100 %, net de la charge de midi) − file d\'attente, ou en soutirage − pointe de consommation d\'hiver (consommation Enedis par commune rattachée au poste).',
+    lire: 'Vert > 20 MW, rouge ≤ 0,5 MW. En soutirage (charge d\'une batterie), c\'est la seule information disponible : Caparéseau ne publie rien.',
+    limite: 'Ordre de grandeur. N-1 ignoré, consommation rattachée au poste par commune. Recoupé : soutirage cohérent avec 4 simulations Enedis sur 4 ; en injection, plus pessimiste qu\'Enedis sur 2 postes à fort éolien.' },
   reseau: { quoi: 'Le tracé des lignes moyenne tension (HTA) d\'Enedis et des ELD : plein = aérien, pointillé = souterrain.',
     lire: 'Aucune couleur de capacité. Sert à repérer où passe le réseau et à mesurer la distance d\'un terrain à la ligne.',
     limite: 'Source Agence ORE ; ne dit rien de la place disponible sur la ligne.' },
@@ -312,6 +417,13 @@ const VIEW_HELP = {
     limite: 'Même limite que la capacité restante : un solde comptable.' }
 };
 function renderLegend() {
+  if (state.view === 'ligne') {
+    const h = VIEW_HELP.ligne;
+    $('#legend').innerHTML = `<div class="ramp"></div><div class="rampl"><span>0 MW</span><span>3</span><span>8</span><span>≥ 12 MW</span></div>
+      <div class="mute" style="margin-top:3px">${state.dir === 'sout' ? 'Soutirage' : 'Injection'} · gris = poste inconnu ou hors réseau rattaché</div>
+      <div class="vhelp"><p><b>Ce que ça montre.</b> ${h.quoi}</p><p><b>Comment lire.</b> ${h.lire}</p><p class="mute"><b>Limite.</b> ${h.limite}</p></div>`;
+    return;
+  }
   const items = state.view === 'reseau'
     ? [['#2a6fdb', 'HTA aérien'], ['#e8890c', 'HTA souterrain (pointillés)']]
     : state.view === 'file'
@@ -337,8 +449,12 @@ function initMap() {
   map.createPane('sitePane'); map.getPane('sitePane').style.zIndex = 450;
   map.createPane('postePane'); map.getPane('postePane').style.zIndex = 470;
   map.createPane('projPane'); map.getPane('projPane').style.zIndex = 520;
-  [posteGroup, siteGroup, entGroup, metGroup, prodGroup, consoGroup, projGroup] = Array.from({ length: 7 }, () => L.layerGroup());
-  map.on('click', (e) => { if (state.creating) createProjectAt(e.latlng.lat, e.latlng.lng); });
+  [posteGroup, siteGroup, entGroup, metGroup, prodGroup, consoGroup, projGroup, envGroup] = Array.from({ length: 8 }, () => L.layerGroup());
+  map.on('click', (e) => {
+    if (state.drawing) { state.drawing.pts.push([e.latlng.lat, e.latlng.lng]); state.drawing.line.setLatLngs(state.drawing.pts); return; }
+    if (state.creating) createProjectAt(e.latlng.lat, e.latlng.lng);
+  });
+  map.on('dblclick', () => { if (state.drawing) finishDraw(); });
   map.on('zoomend', () => { $('#htaHint').style.display = map.getZoom() >= 9 ? 'none' : 'block'; });
   $('#htaHint').style.display = 'block';
 }
@@ -351,6 +467,7 @@ function addTiles(url, bounds, minZoom, rules) {
 async function loadTiles() {
   try {
     const m = await fetch('hta/manifest.json').then((r) => (r.ok ? r.json() : {}));
+    manifest = m;
     for (const e of Object.values(m)) {
       tilesVersion = tilesVersion || e.postes_version || null;
       const b = [[e.bounds[1], e.bounds[0]], [e.bounds[3], e.bounds[2]]];
@@ -361,51 +478,173 @@ async function loadTiles() {
 }
 
 // =============================================================== postes
-function posteIcon(p) { return { renderer: canvas, pane: 'postePane', radius: 5 + Math.min(7, Math.sqrt(p.cr || 0) / 2), color: '#fff', weight: 1.6, fillColor: posteColor(p), fillOpacity: .96 }; }
+const YEARS = [2026, 2027, 2028, 2029, 2030, 2031, 2032];
+function worksOf(p) { return p.tr || []; }
+function worksUntil(p, y) {           // travaux attendus d'ici l'année y (ou sans date)
+  return worksOf(p).filter((w) => (y === 'nd' ? w.annee === null || w.annee === undefined : w.annee !== null && w.annee !== undefined && w.annee <= y));
+}
+function posteIcon(p) {
+  const base = { renderer: canvas, pane: 'postePane', radius: 5 + Math.min(7, Math.sqrt(p.cr || 0) / 2), color: p.ap ? '#1b2430' : '#fff', weight: p.ap ? 1.2 : 1.6,
+    dashArray: p.ap ? '2 2' : null, fillColor: posteColor(p), fillOpacity: p.ap ? .8 : .96 };
+  if (state.year === null) return base;
+  const hit = worksUntil(p, state.year).length > 0;
+  return hit ? { ...base, radius: base.radius + 3, color: '#6741d9', weight: 3.5 } : { ...base, fillOpacity: .25, color: '#fff' };
+}
+function posteTip(p) {
+  const v = posteNa(p), lbl = { ligne: 'marge estimée', transfo: 'marge transfo estimée', sanstravaux: 'sans travaux', file: 'file' }[state.view] || 'disponibles';
+  const val = state.view === 'file' ? fmtN(p.fa, 1) + ' MW en file' : v === null ? '?' : `${fmtN(v, 1)} MW ${lbl}`;
+  const w = state.year !== null ? worksUntil(p, state.year) : [];
+  return `${esc(p.n)}${p.ap ? ' <span style="color:#667085">(position déduite)</span>' : ''} — ${val}${w.length ? `<br><span style="color:#6741d9">▲ ${w.length} chantier(s) : ${esc(w[0].titre.slice(0, 60))}</span>` : ''}`;
+}
 function drawPostes() {
   posteGroup.clearLayers();
   postesData.forEach((p, i) => {
     const m = L.circleMarker([p.la, p.lo], posteIcon(p)).on('click', (e) => { L.DomEvent.stop(e); showPoste(i); });
-    m.bindTooltip(`${p.n} — ${p.na === null ? '?' : fmtN(posteNa(p), 1) + ' MW'}`);
+    m.bindTooltip(() => posteTip(p));
     m._p = p; posteGroup.addLayer(m);
   });
   $('#nPostes').textContent = `(${postesData.length})`;
 }
-function restylePostes() { posteGroup.eachLayer((m) => m.setStyle({ fillColor: posteColor(m._p) })); }
+function restylePostes() { posteGroup.eachLayer((m) => m.setStyle(posteIcon(m._p))); }
 
-function worksOf(p) { return p.tr || []; }
-function showPoste(i) {
-  const p = postesData[i], cls = hostCls(posteNa(p));
+// frise : « Aujourd'hui » puis les années où des travaux S3REnR sont attendus
+function renderTimeline() {
+  const n = (y) => postesData.filter((p) => worksUntil(p, y).length).length;
+  $('#timeline').innerHTML = `<span>Travaux</span><button data-y="now" class="${state.year === null ? 'on' : ''}">Aujourd'hui</button>`
+    + YEARS.map((y) => `<button data-y="${y}" class="${state.year === y ? 'on' : ''}" title="${n(y)} postes avec des travaux d'ici ${y}">${y}</button>`).join('')
+    + `<button data-y="nd" class="${state.year === 'nd' ? 'on' : ''}" title="${n('nd')} postes">Sans date</button>`;
+  $$('#timeline button').forEach((b) => b.addEventListener('click', () => {
+    state.year = b.dataset.y === 'now' ? null : b.dataset.y === 'nd' ? 'nd' : +b.dataset.y;
+    renderTimeline(); restylePostes();
+    if (state.year !== null) toast(`${n(state.year)} postes avec des travaux S3REnR ${state.year === 'nd' ? 'sans date' : 'attendus d\'ici ' + state.year} (cerclés de violet)`);
+  }));
+}
+
+function showPoste(i, tab) {
+  if (tab) state.posteTab = tab;
+  setTimeout(() => drawEnvLinks(i), 0);
+  const p = postesData[i], v = posteNa(p), cls = state.view === 'ligne' ? null : hostCls(v);
+  const color = state.view === 'ligne' ? rampColor(v) : HOST[cls];
+  const tabs = `<div class="tabs"><button class="${state.posteTab === 'pub' ? 'on' : ''}" onclick="showPoste(${i},'pub')">Publié par RTE et Enedis</button><button class="${state.posteTab === 'est' ? 'on' : ''}" onclick="showPoste(${i},'est')">Estimation du transformateur</button></div>`;
+  drawer(`<div class="head"><button class="x" onclick="closeDrawer()">×</button><h2>🔌 ${esc(p.n)}</h2>
+      <div class="sub">${esc(p.s3 || '')} · poste source${p.tm ? ` · ${fmtN(p.tm, 0)} MVA sur ${p.nt || '?'} transformateur${p.nt > 1 ? 's' : ''}` : ''}</div>
+      ${p.ap ? `<div class="warn" style="margin-top:6px;font-size:11.5px">📍 <b>Position déduite</b> — ${AP_LBL[p.ap]}</div>` : ''}
+      <div style="margin-top:6px"><span class="tag" style="background:${color}">${v === null ? 'valeur inconnue' : fmtN(v, 1) + ' MW'}</span> <span class="mute">${{ ligne: 'marge estimée', transfo: 'marge transfo estimée', sanstravaux: 'sans travaux', file: 'file d\'attente', remplissage: '' }[state.view] ?? 'restants S3REnR'} · ${state.dir === 'sout' ? 'soutirage' : 'injection'}</span></div>${tabs}</div>
+    <div class="content">${state.posteTab === 'est' ? posteEstimate(p) : postePublished(p)}
+      <button class="btn" onclick="zoomTo(${p.la},${p.lo},13)">Zoomer sur la carte</button>
+      <button class="btn primary" onclick="createProjectAt(${p.la},${p.lo})">Créer un projet ici</button>
+    </div>`);
+}
+const AP_LBL = {
+  1: 'poste absent d\'OpenStreetMap : placé sur le poste de transformation IGN le plus proche de la commune du même nom (bon à moins de 1 km dans ~87 % des cas testés).',
+  2: 'poste absent d\'OpenStreetMap : placé sur le poste IGN le plus proche du centre des communes de ses installations (registre ODRÉ ; bon à moins de 1 km dans ~68 % des cas testés).',
+  3: 'estimation brute (centre des communes de ses installations), à quelques km près.' };
+function postePublished(p) {
   const cr = p.cr || 0, es = p.es || 0, fa = p.fa || 0, na = p.na || 0, tot = Math.max(cr, es + fa + na, 0.001);
   const seg = (v, c) => `<i style="width:${(v / tot) * 100}%;background:${c}"></i>`;
-  const years = [2026, 2027, 2028, 2029, 2030, 2031, 2032];
-  const w = worksOf(p), byYear = Object.fromEntries(years.map((y) => [y, w.filter((x) => x.annee === y).length]));
+  const w = worksOf(p), byYear = Object.fromEntries(YEARS.map((y) => [y, w.filter((x) => x.annee === y).length]));
   const pr = p.pr || {}, prTot = Object.entries(pr).filter(([k]) => !k.startsWith('n_')).reduce((s, [, v]) => s + v, 0);
   const prNames = { pv: 'Solaire', eo: 'Éolien', hy: 'Hydraulique', bio: 'Bioénergies', th: 'Thermique', st: 'Stockage', autre: 'Autres' };
-  drawer(`<div class="head"><button class="x" onclick="closeDrawer()">×</button><h2>🔌 ${esc(p.n)}</h2>
-      <div class="sub">${esc(p.s3 || '')} · poste source</div>
-      <div style="margin-top:6px"><span class="tag" style="background:${HOST[cls]}">${p.na === null ? 'capacité inconnue' : fmtN(posteNa(p), 1) + ' MW disponibles'}</span></div></div>
-    <div class="content">
-      <div class="h5">Budget de capacité réservée (S3REnR)</div>
-      <div class="bar">${seg(es, '#1F3864')}${seg(fa, '#f08c00')}${seg(na, '#2f9e44')}</div>
-      <div class="barlg"><span>■ <b style="color:#1F3864">en service</b> ${fmtN(p.es)} MW</span><span>■ <b style="color:#f08c00">file d'attente</b> ${fmtN(p.fa)} MW</span><span>■ <b style="color:#2f9e44">disponible</b> ${fmtN(p.na)} MW</span></div>
-      <div class="kv"><span>Disponible sans travaux (RTE/Enedis)</span><span><b>${p.sw === undefined ? '—' : fmtN(p.sw, 1) + ' MW'}</b></span></div>
-      <div class="kv"><span>Capacité réservée</span><span>${fmtN(p.cr)} MW</span></div>
+  const hx = p.hx || {};
+  const evs = [...(hx.ev || []).map((e) => ({ ...e, src: 'Caparéseau' })), ...(hx.rl || []).map((e) => ({ ...e, src: 'courrier' }))].sort((a, b) => b.d.localeCompare(a.d));
+  const hist = evs.length ? `<table class="t"><tr><th>Date</th><th>Transfert</th><th style="text-align:right">MW</th><th>Source</th></tr>${evs.map((e) => `<tr><td>${e.d.split('-').reverse().join('/')}</td><td>${e.sens ? `${e.sens} ${esc(e.poste || 'autres postes')}` : 'transfert notifié'}</td><td style="text-align:right;font-weight:600;color:${e.mw < 0 ? '#c92a2a' : '#1e7b34'}">${e.mw > 0 ? '+' : ''}${fmtN(e.mw, 1)}</td><td>${e.u ? `<a href="${esc(e.u)}" target="_blank" rel="noopener">courrier RTE ↗</a>` : '<span class="mute">Caparéseau</span>'}</td></tr>`).join('')}</table>
+      ${hx.net !== undefined ? `<div class="mute" style="font-size:11px">Solde publié par Caparéseau : ${hx.net > 0 ? '+' : ''}${fmtN(hx.net, 1)} MW</div>` : ''}`
+    : hx.net !== undefined ? `<div>Solde des transferts de capacité : <b style="color:${hx.net < 0 ? '#c92a2a' : '#1e7b34'}">${hx.net > 0 ? '+' : ''}${fmtN(hx.net, 1)} MW</b> <span class="mute">(détail non publié dans cette région)</span></div>`
+      : '<div class="mute">Aucun transfert publié pour ce poste.</div>';
+  return `<div class="h5">Ce qui reste de la réservation S3REnR</div>
+      <div class="bar">${seg(es, '#3b3f5c')}${seg(fa, '#f08c00')}${seg(na, '#2f9e44')}</div>
+      <table class="wf">
+        <tr><td class="op"></td><td>réservés par le schéma</td><td class="v">${fmtN(p.cr)}</td><td class="src">S3REnR</td></tr>
+        <tr><td class="op">−</td><td>EnR en service relevant du schéma</td><td class="v">${fmtN(p.es)}</td><td class="src">Caparéseau</td></tr>
+        <tr><td class="op">−</td><td>en file d'attente à ce poste</td><td class="v">${fmtN(p.fa)}</td><td class="src">Caparéseau</td></tr>
+        <tr class="tot"><td class="op">=</td><td>restant sur la réservation</td><td class="v">${fmtN(p.na)}</td><td class="src">S3REnR − Caparéseau</td></tr></table>
+      <div class="kv"><span>Disponible sans travaux (RTE / Enedis)</span><span><b>${p.sw === undefined ? '—' : fmtN(p.sw, 1) + ' MW'}</b></span></div>
+      <div class="kv"><span>Transformation</span><span>${p.tm ? `${fmtN(p.tm, 0)} MVA · ${p.nt || '?'} transfo(s)` : '—'}</span></div>
       <div class="kv"><span>Taux de remplissage</span><span>${fmtN(p.tx, 0, ' %')}</span></div>
       <div class="kv"><span>Quote-part</span><span>${fmtN(p.qp, 2, ' €/kW')}${p.qp ? ` (${fmtN(p.qp, 1)} k€/MW)` : ''}</span></div>
       ${p.tv ? `<div class="kv"><span>Travaux RTE</span><span>${esc(p.tv)}</span></div>` : ''}
-      ${prTot > 0 ? `<div class="h5">Production déjà raccordée au poste</div>
-        <div class="kv"><span>Total</span><span>${fmtN(prTot, 1)} MW</span></div>
-        ${Object.entries(pr).filter(([k, v]) => !k.startsWith('n_') && v > 0.05).sort((a, b) => b[1] - a[1]).map(([k, v]) => `<div class="kv"><span>${prNames[k] || k}</span><span>${fmtN(v, 1)} MW${pr['n_' + k] ? ` · ${pr['n_' + k]} inst.` : ''}</span></div>`).join('')}` : ''}
-      <div class="h5">Ce qui change, et quand</div>
-      <div class="years">${years.map((y) => `<div class="${byYear[y] ? 'has' : ''}"><i>${'●'.repeat(Math.min(3, byYear[y]))}</i><span>${String(y).slice(2)}</span></div>`).join('')}</div>
+      <div class="h5">À venir</div>
+      <div class="years">${YEARS.map((y) => `<div class="${byYear[y] ? 'has' : ''}"><i>${'●'.repeat(Math.min(3, byYear[y]))}</i><span>${String(y).slice(2)}</span></div>`).join('')}</div>
       ${w.length ? w.map((x) => `<div class="work"><span class="y">${x.annee || '?'}</span><b>${esc(x.titre)}</b><br><span class="mute">${esc(x.etat || 'état ?')}${x.cout_k ? ' · ' + fmtN(x.cout_k, 0) + ' k€' : ''}${x.engage ? ' · projet engagé' : ''} · ETF ${esc(x.ed || '')}</span></div>`).join('')
         : `<div class="mute">${p.tv ? 'Travaux signalés par Caparéseau, sans calendrier détaillé dans les états techniques et financiers extraits.' : 'Aucun travaux signalé.'}</div>`}
+      <div class="h5">Compte S3REnR · historique des transferts</div>${hist}
+      ${envBlock(p)}
       <div class="h5">En amont — RTE</div>
       ${p.ct ? `<div class="warn"><b>⚠ Contrainte RTE amont</b> — ${esc(p.ct)}<br>Sensibilité max ${p.cs} % <span class="mute">(horizon 3-5 ans)</span></div>` : '<div class="mute">Aucune contrainte RTE amont identifiée pour ce poste.</div>'}
-      <div class="mute" style="margin-top:10px;font-size:11px">Sources : Caparéseau (RTE), ODRÉ (contraintes, registre), états techniques et financiers S3REnR. À confirmer avant toute PTF.</div>
-      <button class="btn" onclick="zoomTo(${p.la},${p.lo},13)">Zoomer sur la carte</button>
-      <button class="btn primary" onclick="createProjectAt(${p.la},${p.lo})">Créer un projet ici</button>
+      ${prTot > 0 ? `<div class="h5">Production en service</div>
+        <div class="kv"><span>Total raccordé au poste</span><span>${fmtN(prTot, 1)} MW</span></div>
+        ${Object.entries(pr).filter(([k, v]) => !k.startsWith('n_') && v > 0.05).sort((a, b) => b[1] - a[1]).map(([k, v]) => `<div class="kv"><span>${prNames[k] || k}</span><span>${fmtN(v, 1)} MW${pr['n_' + k] ? ` · ${pr['n_' + k]} inst.` : ''}</span></div>`).join('')}` : ''}
+      <div class="mute" style="margin-top:10px;font-size:11px">Sources : Caparéseau (RTE), ODRÉ (contraintes, registre), états techniques et financiers S3REnR. À confirmer avant toute PTF.</div>`;
+}
+function posteEstimate(p) {
+  const t = p.tg;
+  if (!t) return `<div class="mute" style="margin:10px 0">Puissance de transformation non publiée par Caparéseau pour ce poste : pas d'estimation possible.</div>`;
+  const cap = p.tm * 0.95, sev = evaluation && evaluation.soutirage;
+  const row = (op, v, lbl, src) => `<tr><td class="op">${op}</td><td class="v">${fmtN(v, 1)}</td><td>${lbl}${src ? ` <span class="badge ${src === 'publié' ? 'pub' : 'est'}">${src}</span>` : ''}</td></tr>`;
+  return `<div class="cols" style="margin-top:8px">
+      <div><div class="h5" style="margin-top:0">▲ Injection</div><table class="wf">
+        ${row('', cap, `MW de transformation (${fmtN(p.tm, 0)} MVA × 0,95)`, 'publié')}
+        ${row('−', t.pk, 'export à la pointe de production', 'estimé')}
+        ${row('−', state.queue ? (p.fa || 0) : 0, 'file d\'attente devant vous', 'publié')}
+        <tr class="tot"><td class="op">=</td><td class="v big" style="color:${HOST[hostCls(transfoMargin(p, 'inj'))]}">${fmtN(transfoMargin(p, 'inj'), 1)}</td><td>MW de marge en injection</td></tr></table></div>
+      <div><div class="h5" style="margin-top:0">▼ Soutirage</div><table class="wf">
+        ${row('', cap, 'MW de transformation', 'publié')}
+        ${row('−', t.cw, 'import à la pointe de consommation d\'hiver', 'estimé')}
+        <tr class="tot"><td class="op">=</td><td class="v big" style="color:${HOST[hostCls(t.ms)]}">${fmtN(t.ms, 1)}</td><td>MW de marge en soutirage</td></tr></table></div></div>
+    <div class="vhelp" style="margin-top:8px"><p><b>Hypothèses.</b> Pointe de production : PV 80 %, éolien 100 %, hydraulique 80 %, bioénergies 90 % des installations raccordées en HTA/BT à ce poste (registre ODRÉ), moins la charge de midi en été (45 % de la moyenne). Pointe d'hiver : ${fmtN(t.ce, 0)} GWh/an de consommation rattachée au poste (Enedis, communes dont les installations sont raccordées ici), convertie par secteur (résidentiel 3 800 h, tertiaire 4 300 h, industrie 5 500 h).</p>
+      <p class="mute"><b>Limite.</b> N-1 ignoré ; la consommation des clients HTB n'est pas comptée. ${sev && sev.n ? `Recoupé avec ${sev.n} simulations Enedis en soutirage : ${sev.ok}/${sev.n} cohérentes.` : ''}</p></div>
+    <div class="kv"><span>Pour comparaison : sans travaux (publié)</span><span>${p.sw === undefined ? '—' : fmtN(p.sw, 1) + ' MW (injection)'}</span></div>`;
+}
+
+// =============================================================== projets concurrents (en développement)
+const ENV_COL = { pv: '#f59f00', eo: '#0ca678', hy: '#1c7ed6', st: '#ae3ec9' };
+const ENV_TECH = { pv: 'Photovoltaïque', eo: 'Éolien', hy: 'Hydroélectricité', st: 'Stockage' };
+const ENV_STAGE = { dec: ['Décision publiée', '#e6f4ea', '#1e7b34'], cpc: ['Cas par cas décidé', '#e7f0ff', '#1c5bd9'], ae: ['Avis AE publié', '#ede7ff', '#4c2fb0'],
+  ei: ['Étude d\'impact déposée', '#fff1db', '#b35c00'], cp: ['Consultation du public', '#fff1db', '#b35c00'], d: ['Dossier', '#f2f4f7', '#667085'] };
+const ENV_LINK = { ae: 'Avis AE', ei: 'Étude d\'impact', dec: 'Décision', rnt: 'Résumé non technique', zip: 'Dossier complet', web: 'Page de consultation', cerfa: 'Formulaire' };
+const envStage = (k) => { const [l, bg, fg] = ENV_STAGE[k] || ENV_STAGE.d; return `<span class="badge" style="background:${bg};color:${fg}">${l}</span>`; };
+const envVisible = (r) => !$('#envRecent').checked || r[5] >= '2023';
+function assignEnv() {        // poste le plus proche de chaque projet (≤ 25 km)
+  envRows.forEach((r) => { const n = nearestPostes(r[0], r[1], 1)[0]; r[10] = n && n.d <= 25 ? n.i : -1; r[11] = n ? n.d : null; });
+}
+function drawEnv() {
+  envGroup.clearLayers(); let n = 0;
+  envRows.forEach((r, k) => {
+    if (!envVisible(r)) return; n++;
+    const icon = L.divIcon({ className: '', iconSize: [12, 12], html: `<div style="width:10px;height:10px;transform:rotate(45deg);background:${ENV_COL[r[2]]};border:1.5px solid #fff;box-shadow:0 1px 3px rgba(0,0,0,.4)${r[9] && r[2] !== 'st' ? ';outline:2px solid #ae3ec9' : ''}"></div>` });
+    L.marker([r[0], r[1]], { icon, pane: 'sitePane' }).on('click', (e) => { L.DomEvent.stop(e); showEnv(k); })
+      .bindTooltip(`${esc(r[6].slice(0, 70))}${r[3] ? ' · ' + fmtN(r[3], 1) + ' MW' : ''}`).addTo(envGroup);
+  });
+  $('#nEnv').textContent = `(${n})`;
+}
+function envOfPoste(i) { return envRows.map((r, k) => ({ r, k })).filter(({ r }) => r[10] === i && envVisible(r)).sort((a, b) => b.r[5].localeCompare(a.r[5])); }
+function envBlock(p) {
+  const i = postesData.indexOf(p), list = envOfPoste(i);
+  if (!envRows.length) return '';
+  const mw = list.reduce((t, { r }) => t + (r[3] || 0), 0);
+  return `<div class="h5">Projets en développement <span class="mute" style="text-transform:none;letter-spacing:0">· rattachés au poste le plus proche</span></div>
+    ${list.length ? `<div class="kv"><span>${list.length} projet${list.length > 1 ? 's' : ''}${$('#envRecent').checked ? ' depuis 2023' : ''}</span><span><b>${fmtN(mw, 1)} MW</b> <span class="mute">connus</span></span></div>
+      <table class="t"><tr><th>Projet</th><th>Étape</th><th style="text-align:right">MW</th></tr>${list.slice(0, 12).map(({ r, k }) => `<tr><td><a href="#" onclick="showEnv(${k});return false">${esc(r[6].slice(0, 60))}</a><br><span class="mute">${ENV_TECH[r[2]]}${r[9] && r[2] !== 'st' ? ' + stockage' : ''} · ${r[5] || '?'} · ${fmtN(r[11], 1)} km</span></td><td>${envStage(r[4])}</td><td style="text-align:right">${r[3] ? fmtN(r[3], 1) : '—'}</td></tr>`).join('')}</table>`
+      : '<div class="mute">Aucun projet soumis à étude d\'impact ou cas par cas connu autour de ce poste.</div>'}`;
+}
+function drawEnvLinks(i) {
+  if (envLinks) { map.removeLayer(envLinks); envLinks = null; }
+  if (i === null || !map.hasLayer(envGroup)) return;
+  const p = postesData[i]; envLinks = L.layerGroup().addTo(map);
+  envOfPoste(i).forEach(({ r }) => L.polyline([[p.la, p.lo], [r[0], r[1]]], { pane: 'projPane', color: '#6741d9', weight: 1.5, dashArray: '4 4', opacity: .8 }).addTo(envLinks));
+}
+function showEnv(k) {
+  const r = envRows[k], p = r[10] >= 0 ? postesData[r[10]] : null;
+  drawer(`<div class="head"><button class="x" onclick="closeDrawer()">×</button><h2>${esc(r[6])}</h2>
+      <div class="sub">${esc(r[7])}</div><div style="margin-top:6px">${envStage(r[4])} <span class="badge" style="background:${ENV_COL[r[2]]};color:#fff">${ENV_TECH[r[2]]}</span>${r[9] && r[2] !== 'st' ? ' <span class="badge" style="background:#ae3ec9;color:#fff">+ stockage</span>' : ''}</div></div>
+    <div class="content">
+      <div class="kv"><span>Puissance</span><span>${r[3] ? fmtN(r[3], 1) + ' MW <span class="mute">(lu dans le texte)</span>' : '—'}</span></div>
+      <div class="kv"><span>Date</span><span>${esc(r[5] || '—')}</span></div>
+      <div class="kv"><span>Poste source probable</span><span>${p ? `<a href="#" onclick="showPoste(${r[10]});return false">${esc(p.n)}</a> · ${fmtN(r[11], 1)} km` : '—'}</span></div>
+      <div class="h5">Dossier public</div>
+      ${Object.entries(r[8] || {}).map(([k2, u]) => `<a class="btn" style="display:inline-block;text-decoration:none" href="${esc(u)}" target="_blank" rel="noopener">${ENV_LINK[k2] || k2} ↗</a>`).join('') || '<div class="mute">Aucun document lié.</div>'}
+      <div class="mute" style="font-size:11px;margin-top:8px">Sources : projets-environnement.gouv.fr (ministère de la Transition écologique), DREAL Bretagne (cas par cas). Le poste est le plus proche géographiquement, pas celui de la PTF.</div>
+      <button class="btn" onclick="zoomTo(${r[0]},${r[1]},13)">Zoomer</button>
     </div>`);
 }
 
@@ -497,26 +736,19 @@ function saveUserProjects() { try { localStorage.setItem(USER_KEY, JSON.stringif
 function nearestPostes(la, lo, k = 5) {
   return postesData.map((p, i) => ({ p, i, d: hav(la, lo, p.la, p.lo) })).sort((a, b) => a.d - b.d).slice(0, k);
 }
-function connectionTest(pr) {
-  const P = pr.puissance_mw || 3, near = nearestPostes(pr.lat, pr.lon, 5);
-  const best = near[0];
-  const qp = best && best.p.qp ? best.p.qp : 0;
-  const hi = COST.fixed + qp * P * 1000 + (best ? best.d * 1000 * COST.cable : 0);
-  return { P, near, best, hi: Math.round(hi / 1000), qpK: Math.round(qp * P) };
-}
 function drawProjects() {
   projGroup.clearLayers();
   projects.forEach((pr) => {
-    const icon = L.divIcon({ className: '', iconSize: [26, 26], html: `<div style="width:26px;height:26px;border-radius:6px;background:${pr.user ? '#7048e8' : '#1F3864'};color:#fff;font-weight:700;display:flex;align-items:center;justify-content:center;border:2px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,.4)">P</div>` });
+    const icon = L.divIcon({ className: '', iconSize: [26, 26], html: `<div style="width:26px;height:26px;border-radius:6px;background:${pr.user ? '#7048e8' : '#1F3864'};color:#fff;font-weight:700;display:flex;align-items:center;justify-content:center;border:2px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,.4)">${TECH[pr.techno]?.ico || 'P'}</div>` });
     L.marker([pr.lat, pr.lon], { icon, pane: 'projPane' }).on('click', (e) => { L.DomEvent.stop(e); showProject(pr.id); }).bindTooltip(pr.nom).addTo(projGroup);
   });
   $('#projCount').textContent = projects.length;
 }
 function renderProjectsList() {
   const given = projects.filter((p) => !p.user), mine = projects.filter((p) => p.user);
-  const card = (p) => `<div class="proj" onclick="showProject('${p.id}', true)"><b>${esc(p.nom)}</b><small>${esc(p.commune || '')} · ${fmtN(p.puissance_mw, 2)} MW${(p.simulations || []).length ? ` · ${p.simulations.length} simulation(s) Enedis` : ''}</small><br><small>${esc(p.statut || '')}</small>${(p.alias || []).length ? `<br><small class="mute">${esc(p.alias.join(' · ').slice(0, 90))}</small>` : ''}</div>`;
+  const card = (p) => `<div class="proj" onclick="showProject('${p.id}', true)"><b>${esc(p.nom)}</b><small>${esc(TECH[p.techno]?.lbl || '')}${p.techno ? ' · ' : ''}${esc(p.commune || '')}${p.commune ? ' · ' : ''}${fmtN(p.puissance_mw, 2)} MW${(p.simulations || []).length ? ` · ${p.simulations.length} simulation(s) Enedis` : ''}</small><br><small>${esc(p.statut || '')}</small>${(p.alias || []).length ? `<br><small class="mute">${esc(p.alias.join(' · ').slice(0, 90))}</small>` : ''}</div>`;
   $('#projects').innerHTML = `<h3>Projets avec simulations Enedis</h3>${given.length ? given.map(card).join('') : '<div class="empty">Aucun fichier de simulations chargé (private/simulations.json).</div>'}
-    <h3>Mes projets</h3>${mine.length ? mine.map(card).join('') : '<div class="empty">Cliquez sur « Créer un projet » puis sur la carte.</div>'}
+    <h3>Mes projets</h3>${mine.length ? mine.map(card).join('') : '<div class="empty">Cliquez sur « Créer un projet », placez le point de livraison puis nommez-le.</div>'}
     <div style="padding:8px 14px"><button class="btn" onclick="exportProjects()">Exporter mes projets (JSON)</button></div>`;
 }
 function exportProjects() {
@@ -541,49 +773,353 @@ function simCostBox(pr) {
   const rows = line('Injection', best('production')) + line('Soutirage', best('consommation')) + (!best('production') && !best('consommation') ? line('Simulation', (pr.simulations || [])[0] && { ...pr.simulations[0], len: pr.simulations[0].longueur_m }) : '');
   return rows ? `<div class="h5">Coût de raccordement indicatif</div>${rows}<div class="mute" style="font-size:11px">Fixe ${COST.fixed / 1000} k€ + longueur × ${COST.cable} €/m, hors quote-part S3REnR (projet hors schéma) et hors renforcement éventuel du départ.</div>` : '';
 }
+
+// --------------------------------------------------------------- assistant de projet (installation -> raccordement -> coût)
+const TECH = {
+  pv: { lbl: 'Photovoltaïque', ico: '☀', inj: 1, sout: 0 }, eo: { lbl: 'Éolien', ico: '🌀', inj: 1, sout: 0 },
+  bess: { lbl: 'Batterie (BESS)', ico: '🔋', inj: 1, sout: 1 }, conso: { lbl: 'Consommation', ico: '🏭', inj: 0, sout: 1 },
+};
+// coûts unitaires indicatifs (k€ et €/m) — ordres de grandeur de marché, à remplacer par vos devis
+const COSTS = {
+  seg: { acc: { lbl: 'Accotement de route', eur: [95, 130] }, urb: { lbl: 'Voirie urbaine (sous chaussée)', eur: [160, 230] },
+    che: { lbl: 'Chemin', eur: [70, 95] }, champ: { lbl: 'Terrain / parcelle', eur: [75, 100] }, man: { lbl: 'Tracé manuel', eur: [90, 150] } },
+  cellule: [100, 140],          // départ HTA dédié au poste source (cellule + travaux poste)
+  piquage: [15, 35],            // organe de coupure / raccordement en piquage sur une ligne existante
+  forfaits: 8,                  // études, frais de dossier, mise en service (barème Enedis)
+  livraison: (P) => (P <= 1 ? [55, 80] : P <= 3 ? [70, 100] : [90, 130]),   // poste de livraison (vos ouvrages)
+};
+const RACC_KEY = 'bess_grid_racc_v1';
+let raccStore = {};
+try { raccStore = JSON.parse(localStorage.getItem(RACC_KEY) || '{}'); } catch (e) { raccStore = {}; }
+function saveRacc() { try { localStorage.setItem(RACC_KEY, JSON.stringify(raccStore)); } catch (e) { /* stockage indisponible */ } }
+const proposals = {};         // id projet -> options A/B/C calculées (non sauvegardées)
+let routeLayer = null, segHi = null;
+
+function powers(pr) {          // MW en injection / soutirage
+  const t = TECH[pr.techno] || TECH.pv, P = pr.puissance_mw || 0;
+  return { inj: pr.inj ?? P * t.inj, sout: pr.sout ?? P * t.sout };
+}
+// --- lecture des tuiles HTA autour d'un point (PMTiles, zoom 13)
+const TZ = 13, srcCache = {};
+function tileXY(la, lo, z = TZ) {
+  const n = 1 << z, x = (lo + 180) / 360 * n, r = la * Math.PI / 180;
+  return [x, (1 - Math.log(Math.tan(r) + 1 / Math.cos(r)) / Math.PI) / 2 * n];
+}
+function tile2ll(x, y, z = TZ) {
+  const n = 1 << z, lo = x / n * 360 - 180, la = Math.atan(Math.sinh(Math.PI * (1 - 2 * y / n))) * 180 / Math.PI;
+  return [la, lo];
+}
+async function htaNear(la, lo, r = 2) {
+  const [fx, fy] = tileXY(la, lo), tx = Math.floor(fx), ty = Math.floor(fy), out = [];
+  const files = Object.values(manifest).filter((e) => e.kind !== 'htb' && lo >= e.bounds[0] - .3 && lo <= e.bounds[2] + .3 && la >= e.bounds[1] - .3 && la <= e.bounds[3] + .3);
+  const jobs = [];
+  for (const e of files) {
+    const src = srcCache[e.file] || (srcCache[e.file] = new protomapsL.PmtilesSource(e.file, false));
+    for (let dx = -r; dx <= r; dx++) for (let dy = -r; dy <= r; dy++) {
+      const x = tx + dx, y = ty + dy;
+      jobs.push(src.get({ z: TZ, x, y }, 4096).then((layers) => {
+        for (const [kind, feats] of layers) for (const f of feats) for (const part of f.geom) {
+          out.push({ kind, props: f.props, pts: part.map((q) => tile2ll(x + q.x / 4096, y + q.y / 4096)) });
+        }
+      }).catch(() => {}));
+    }
+  }
+  await Promise.all(jobs);
+  return out;
+}
+function nearestOnLine(la, lo, pts) {     // point le plus proche d'une polyligne, distance en m
+  const k = Math.cos(la * Math.PI / 180) * 111320, m = 110574;
+  let best = { d: Infinity };
+  for (let i = 1; i < pts.length; i++) {
+    const ax = (pts[i - 1][1] - lo) * k, ay = (pts[i - 1][0] - la) * m, bx = (pts[i][1] - lo) * k, by = (pts[i][0] - la) * m;
+    const dx = bx - ax, dy = by - ay, L2 = dx * dx + dy * dy;
+    const t = L2 ? Math.max(0, Math.min(1, -(ax * dx + ay * dy) / L2)) : 0;
+    const px = ax + t * dx, py = ay + t * dy, d = Math.hypot(px, py);
+    if (d < best.d) best = { d, la: la + py / m, lo: lo + px / k };
+  }
+  return best;
+}
+// --- itinéraire par la route (OSRM) découpé en tronçons typés
+function segType(st) {
+  const n = (st.name || '').toLowerCase(), r = st.ref || '';
+  if (/^(rn|rd|n|d|m)\s?\d/i.test(r)) return 'acc';
+  if (/^(rue|avenue|av\.|boulevard|bd|place|allée|impasse|quai|cours|square|grande rue|faubourg)/.test(n)) return 'urb';
+  if (!n || /^(chemin|voie|sentier|route forestière|piste)/.test(n)) return 'che';
+  return 'acc';
+}
+async function routeBetween(a, b) {
+  const straight = () => {
+    const d = hav(a[0], a[1], b[0], b[1]) * 1000 * 1.3;
+    return { coords: [a, b], segs: [{ t: 'champ', m: d, coords: [a, b] }], m: d, approx: true };
+  };
+  if (hav(a[0], a[1], b[0], b[1]) < 0.15) return straight();
+  try {
+    const url = `https://router.project-osrm.org/route/v1/driving/${a[1]},${a[0]};${b[1]},${b[0]}?overview=full&geometries=geojson&steps=true`;
+    const j = await fetch(url).then((r) => r.json());
+    const rt = j.routes && j.routes[0]; if (!rt) return straight();
+    const segs = [];
+    const push = (t, m, coords) => {
+      if (m < 3) return;
+      const last = segs[segs.length - 1];
+      if (last && last.t === t) { last.m += m; last.coords.push(...coords.slice(1)); } else segs.push({ t, m, coords: coords.slice() });
+    };
+    const w0 = j.waypoints[0], w1 = j.waypoints[1];
+    const s0 = [w0.location[1], w0.location[0]], s1 = [w1.location[1], w1.location[0]];
+    push('champ', hav(a[0], a[1], s0[0], s0[1]) * 1000, [a, s0]);
+    for (const st of rt.legs[0].steps) push(segType(st), st.distance, st.geometry.coordinates.map((c) => [c[1], c[0]]));
+    push('champ', hav(s1[0], s1[1], b[0], b[1]) * 1000, [s1, b]);
+    const m = segs.reduce((t, x) => t + x.m, 0);
+    if (m > 3.5 * hav(a[0], a[1], b[0], b[1]) * 1000 + 500) return straight();     // détour aberrant (route en impasse…)
+    return { coords: segs.flatMap((x) => x.coords), segs, m };
+  } catch (e) { return straight(); }
+}
+// --- coût de raccordement (k€) : publié (quote-part, barème) / estimé (ligne, cellule, poste de livraison)
+function costOf(pr, opt) {
+  const { inj, sout } = powers(pr), P = Math.max(inj, sout);
+  const ligne = [0, 1].map((k) => opt.route.segs.reduce((t, sg) => t + sg.m * COSTS.seg[sg.t].eur[k], 0) / 1000);
+  const qp = (opt.poste && opt.poste.qp ? opt.poste.qp : 0) * inj;        // €/kW × MW = k€
+  const ouvr = opt.L === 'C' ? COSTS.cellule : COSTS.piquage;
+  const liv = COSTS.livraison(P);
+  const lines = [
+    { lbl: 'Quote-part S3REnR', sub: `${fmtN(inj, 1)} MW × ${fmtN(opt.poste?.qp, 2)} k€/MW`, v: [qp, qp], src: 'publié', c: '#e8590c' },
+    { lbl: 'Ligne de raccordement', sub: `${fmtN(opt.route.m / 1000, 1)} km · ${opt.route.segs.length} tronçon(s)`, v: ligne, src: 'estimé', c: '#4dabf7' },
+    { lbl: opt.L === 'C' ? 'Départ (cellule) au poste source' : 'Piquage sur la ligne existante', sub: opt.L === 'C' ? 'cellule HTA + travaux au poste' : 'organe de coupure', v: ouvr, src: 'estimé', c: '#51cf66' },
+    { lbl: 'Forfaits et prestations', sub: 'études, dossier, mise en service', v: [COSTS.forfaits, COSTS.forfaits], src: 'publié', c: '#fcc419' },
+  ];
+  const contrib = [0, 1].map((k) => lines.reduce((t, l) => t + l.v[k], 0));
+  const total = [contrib[0] + liv[0], contrib[1] + liv[1]];
+  return { lines, contrib, liv, total, mid: (total[0] + total[1]) / 2, ekw: P ? (total[0] + total[1]) / 2 / P : null };
+}
+async function proposeConnections(id) {
+  const pr = projects.find((p) => p.id === id); if (!pr) return;
+  const { inj, sout } = powers(pr);
+  proposals[id] = { loading: true }; showProject(id);
+  const near = await htaNear(pr.lat, pr.lon, 2);
+  const enough = (props, kind) => (inj <= 0 || (lineMW(props, kind, 'inj') ?? -1) >= inj) && (sout <= 0 || (lineMW(props, kind, 'sout') ?? -1) >= sout);
+  let A = null, B = null;
+  for (const f of near) {
+    const q = nearestOnLine(pr.lat, pr.lon, f.pts); if (!Number.isFinite(q.d)) continue;
+    if (!A || q.d < A.q.d) A = { f, q };
+    if (enough(f.props, f.kind) && (!B || q.d < B.q.d)) B = { f, q };
+  }
+  const posteOf = (f) => (f.props.p !== undefined && tilesVersion === postesVersion ? postesData[f.props.p] : nearestPostes(f.q?.la ?? pr.lat, f.q?.lo ?? pr.lon, 1)[0]?.p);
+  const okPoste = (p) => (inj <= 0 || (posteHead(p, 'inj') ?? -1) >= inj) && (sout <= 0 || (posteHead(p, 'sout') ?? -1) >= sout);
+  const Cn = nearestPostes(pr.lat, pr.lon, 40).find((n) => n.d <= 30 && okPoste(n.p));
+  const opts = [];
+  if (A) opts.push({ L: 'A', titre: `Ligne HTA la plus proche (${A.f.kind})`, kind: A.f.kind, props: A.f.props, to: [A.q.la, A.q.lo], poste: posteOf(A.f), mode: 'piquage' });
+  if (B && (!A || B.f !== A.f)) opts.push({ L: 'B', titre: `Ligne la plus proche avec la marge (${B.f.kind})`, kind: B.f.kind, props: B.f.props, to: [B.q.la, B.q.lo], poste: posteOf(B.f), mode: 'piquage' });
+  if (Cn) opts.push({ L: 'C', titre: `Départ direct vers ${Cn.p.n}`, to: [Cn.p.la, Cn.p.lo], poste: Cn.p, mode: 'direct' });
+  await Promise.all(opts.map(async (o) => { o.route = await routeBetween([pr.lat, pr.lon], o.to); o.cost = costOf(pr, o); }));
+  proposals[id] = { opts, noB: !B, noC: !Cn, n: near.length };
+  drawOptions(id); showProject(id);
+}
+function optChecks(pr, o) {
+  const { inj, sout } = powers(pr), out = [];
+  const line = (dir, need) => {
+    if (need <= 0) return;
+    const v = o.mode === 'direct' ? posteHead(o.poste, dir) : lineMW(o.props, o.kind, dir);
+    out.push(`<span class="${v !== null && v >= need ? 'ok' : 'ko'}">${dir === 'inj' ? 'Injection' : 'Soutirage'} ${fmtN(need, 1)} MW · ${v === null ? 'marge inconnue' : (v >= need ? 'passe' : 'insuffisant') + ` (${fmtN(v, 1)} MW ${o.mode === 'direct' ? 'au poste' : 'sur la ligne'})`}</span>`);
+  };
+  line('inj', inj); line('sout', sout);
+  if (inj > 0 && o.poste) out.push(`<span class="${(o.poste.na ?? 0) >= inj ? 'ok' : 'ko'}">Quote-part : ${fmtN(o.poste.na, 1)} MW restants à ${esc(o.poste.n)}</span>`);
+  return out.join('<br>');
+}
+function clearRoute() { if (routeLayer) { map.removeLayer(routeLayer); routeLayer = null; } }
+function drawOptions(id) {
+  clearRoute(); const P = proposals[id]; if (!P || !P.opts) return;
+  routeLayer = L.layerGroup().addTo(map);
+  P.opts.forEach((o) => {
+    L.polyline(o.route.coords, { pane: 'projPane', color: '#7048e8', weight: 3, dashArray: '6 6', opacity: .9 }).addTo(routeLayer);
+    L.marker(o.to, { pane: 'projPane', icon: L.divIcon({ className: '', iconSize: [20, 20], html: `<div class="opt" style="margin:0;padding:0;border:0"><span class="L">${o.L}</span></div>` }) }).addTo(routeLayer);
+  });
+}
+function drawChosen(r) {
+  clearRoute(); if (!r) return;
+  routeLayer = L.layerGroup().addTo(map);
+  r.route.segs.forEach((sg, k) => {
+    const pl = L.polyline(sg.coords, { pane: 'projPane', color: '#2b2d6e', weight: 4.5, opacity: .95 }).addTo(routeLayer);
+    pl.bindTooltip(`${COSTS.seg[sg.t].lbl} · ${fmtN(sg.m / 1000, 2)} km`); pl._k = k;
+  });
+}
+function hiSeg(k, on) {
+  if (!routeLayer) return;
+  routeLayer.eachLayer((l) => { if (l._k === k && l.setStyle) l.setStyle({ color: on ? '#e64980' : '#2b2d6e', weight: on ? 7 : 4.5 }); });
+}
+function chooseOpt(id, L_) {
+  const pr = projects.find((p) => p.id === id), o = proposals[id].opts.find((x) => x.L === L_);
+  raccStore[id] = { L: o.L, titre: o.titre, mode: o.mode, kind: o.kind, props: o.props, to: o.to, route: o.route, poste: o.poste ? o.poste.n : null };
+  saveRacc(); drawChosen(raccStore[id]); showProject(id);
+}
+function raccOf(pr) {          // raccordement retenu, poste ré-associé aux données courantes
+  const r = raccStore[pr.id]; if (!r) return null;
+  return { ...r, poste: postesData.find((p) => p.n === r.poste) || null };
+}
+// tracé manuel : clics successifs, double-clic pour terminer
+function startDraw(id) {
+  const pr = projects.find((p) => p.id === id);
+  state.drawing = { id, pts: [[pr.lat, pr.lon]], line: L.polyline([[pr.lat, pr.lon]], { pane: 'projPane', color: '#e64980', weight: 3 }).addTo(map) };
+  map.doubleClickZoom.disable(); map.getContainer().style.cursor = 'crosshair';
+  const h = $('#hint'); h.textContent = 'Cliquez le long du tracé, double-cliquez sur la ligne HTA ou le poste pour terminer'; h.style.display = 'block';
+}
+function finishDraw() {
+  const d = state.drawing; state.drawing = null; map.removeLayer(d.line); map.doubleClickZoom.enable(); map.getContainer().style.cursor = ''; $('#hint').style.display = 'none';
+  if (d.pts.length < 2) return;
+  const pr = projects.find((p) => p.id === d.id), end = d.pts[d.pts.length - 1];
+  const m = d.pts.slice(1).reduce((t, q, k) => t + hav(d.pts[k][0], d.pts[k][1], q[0], q[1]) * 1000, 0);
+  const pn = nearestPostes(end[0], end[1], 1)[0];
+  const direct = pn && pn.d < 0.3;
+  raccStore[d.id] = { L: '✎', titre: direct ? `Tracé manuel vers ${pn.p.n}` : 'Tracé manuel vers une ligne HTA', mode: direct ? 'direct' : 'piquage', to: end,
+    route: { coords: d.pts, segs: [{ t: 'man', m, coords: d.pts }], m }, poste: (direct ? pn : nearestPostes(end[0], end[1], 1)[0])?.p.n || null };
+  saveRacc(); drawChosen(raccStore[d.id]); showProject(d.id);
+}
+function costCard(pr, r) {
+  const c = costOf(pr, r), tot = Math.max(c.total[1], 0.001);
+  const bar = [...c.lines.map((l) => [l.v[1], l.c]), [c.liv[1], '#f783ac']].map(([v, col]) => `<i style="width:${(v / tot) * 100}%;background:${col}"></i>`).join('');
+  const rng = (v) => (Math.abs(v[0] - v[1]) < 0.5 ? `${fmtN(v[0], 0)} k€` : `${fmtN(v[0], 0)} – ${fmtN(v[1], 0)} k€`);
+  return `<div class="big" style="margin-top:6px">≈ ${fmtN(c.mid, 0)} k€ <span class="mute" style="font-size:12px;font-weight:400">pour se raccorder</span></div>
+    <div class="mute">${rng(c.total)}${c.ekw ? ` · ${fmtN(c.ekw, 0)} €/kW` : ''}</div>
+    <div class="bar">${bar}</div>
+    <div class="h5">Facture Enedis — contribution de raccordement</div>
+    ${c.lines.map((l) => `<div class="kv"><span><span class="dot" style="background:${l.c};border-radius:2px"></span> ${l.lbl}<br><small class="mute">${l.sub}</small></span><span><span class="badge ${l.src === 'publié' ? 'pub' : 'est'}">${l.src}</span> ${rng(l.v)}</span></div>`).join('')}
+    <div class="kv"><span><b>= Contribution HT</b></span><span><b>${rng(c.contrib)}</b></span></div>
+    <div class="h5">Vos propres ouvrages</div>
+    <div class="kv"><span><span class="dot" style="background:#f783ac;border-radius:2px"></span> Poste de livraison<br><small class="mute">selon la puissance</small></span><span><span class="badge est">estimé</span> ${rng(c.liv)}</span></div>
+    <details style="margin-top:6px"><summary class="mute" style="cursor:pointer">Pourquoi ce montant ? · Sources</summary><div class="mute" style="font-size:11px;margin-top:4px">
+      Quote-part : Caparéseau (€/kW publiés par RTE, due en injection seulement). Ligne : longueur de l'itinéraire par la route (OSRM / OpenStreetMap) × coût au mètre par type de terrain (${Object.values(COSTS.seg).map((x) => `${x.lbl.toLowerCase()} ${x.eur[0]}–${x.eur[1]} €/m`).join(', ')}).
+      Cellule, piquage, poste de livraison : ordres de grandeur de marché. Hors réfaction, renforcements éventuels du réseau et travaux RTE. Une proposition de raccordement Enedis fait foi.</div></details>`;
+}
 function showProject(id, fly) {
   const pr = projects.find((p) => p.id === id); if (!pr) return;
   if (fly) map.flyTo([pr.lat, pr.lon], Math.max(map.getZoom(), 13));
-  const ct = connectionTest(pr);
+  const { inj, sout } = powers(pr), P = proposals[id], r = raccOf(pr);
+  if (r && !P) drawChosen(r);
   const ctx = (pr.contexte_reseau || []);
-  const near = ct.near.map((n) => `<tr><td>${esc(n.p.n)}</td><td>${fmtN(n.d, 1)} km</td><td>${n.p.na === null ? '—' : fmtN(n.p.na, 1)}</td><td>${fmtN(n.p.fa, 1)}</td><td>${fmtN(n.p.qp, 1)}</td></tr>`).join('');
-  const ok = ct.best && ct.best.p.na !== null && ct.best.p.na >= ct.P;
   const hasSims = (pr.simulations || []).length > 0;
-  drawer(`<div class="head"><button class="x" onclick="closeDrawer()">×</button><h2>${esc(pr.nom)}</h2>
-      <div class="sub">${esc(pr.commune || '')}${pr.societe ? ' · ' + esc(pr.societe) : ''}</div>
+  const ed = (k, v, step = '0.1') => `<input type="number" step="${step}" min="0" value="${v}" onchange="editProject('${pr.id}','${k}',parseFloat(this.value))" style="width:70px">`;
+  const install = pr.user ? `<div style="display:flex;gap:4px;flex-wrap:wrap;margin:6px 0">${Object.entries(TECH).map(([k, t]) => `<span class="chip ${pr.techno === k ? 'on' : ''}" style="cursor:pointer" onclick="editProject('${pr.id}','techno','${k}')">${t.ico} ${t.lbl}</span>`).join('')}</div>
+      <div class="kv"><span>Puissance</span><span>${ed('puissance_mw', pr.puissance_mw)} MW</span></div>
+      <div class="cols"><div class="kv"><span>Injection</span><span><b>${fmtN(inj, 1)} MW</b></span></div><div class="kv"><span>Soutirage</span><span><b>${fmtN(sout, 1)} MW</b></span></div></div>
+      <div class="kv"><span>Nom</span><span><input type="text" value="${esc(pr.nom)}" onchange="editProject('${pr.id}','nom',this.value)"></span></div>`
+    : `<div class="kv"><span>Puissance</span><span>${fmtN(pr.puissance_mw, 2)} MW</span></div><div class="kv"><span>Parcelle</span><span>${esc(pr.parcelle || '—')}</span></div>
+      <div class="kv"><span>Surface · zonage</span><span>${fmtN(pr.surface_m2, 0, ' m²')} · ${esc(pr.zonage || '—')}</span></div><div class="kv"><span>Statut</span><span>${esc(pr.statut || '—')}</span></div>`;
+  const optsHtml = !P ? '' : P.loading ? '<div class="mute" style="margin-top:6px">Recherche des lignes HTA et des postes autour du point…</div>'
+    : `<div class="h5">Où vous pourriez vous raccorder</div>${P.opts.length ? P.opts.map((o) => `<div class="opt ${r && r.L === o.L ? 'sel' : ''}" onclick="chooseOpt('${pr.id}','${o.L}')"><b><span class="L">${o.L}</span>${esc(o.titre)}</b>
+        <div class="mute" style="font-size:11.5px">${fmtN(o.route.m / 1000, 1)} km ${o.route.approx ? 'à vol d\'oiseau × 1,3' : 'par la route'} · ${o.mode === 'direct' ? 'départ dédié' : 'piquage'}${o.poste ? ' · ' + esc(o.poste.n) : ''}</div>
+        <div style="font-size:11.5px;margin-top:2px">${optChecks(pr, o)}</div>
+        <div style="display:flex;justify-content:space-between;margin-top:3px"><b>≈ ${fmtN(o.cost.mid, 0)} k€</b><span class="mute">${fmtN(o.cost.total[0], 0)} – ${fmtN(o.cost.total[1], 0)} k€ · Retenir ›</span></div></div>`).join('')
+      : `<div class="mute">Aucune ligne HTA trouvée dans les tuiles autour du point (${P.n} tronçons lus).</div>`}
+      ${P.noB ? '<div class="mute" style="font-size:11px">Aucune ligne avec la marge suffisante à moins de ~8 km.</div>' : ''}${P.noC ? '<div class="mute" style="font-size:11px">Aucun poste géolocalisé avec la marge à moins de 30 km.</div>' : ''}`;
+  const raccHtml = r ? `<div class="kv" style="margin-top:6px"><span>Retenu</span><span><b>${esc(r.L)} · ${esc(r.titre)}</b></span></div>
+      <div class="h5">${fmtN(r.route.m / 1000, 1)} km · ${r.route.segs.length} tronçon(s)</div>
+      ${r.route.segs.map((sg, k) => `<div class="seg" onmouseenter="hiSeg(${k},true)" onmouseleave="hiSeg(${k},false)"><span>${k + 1}. ${COSTS.seg[sg.t].lbl}<br><small class="mute">${fmtN(sg.m / 1000, 2)} km</small></span><span class="mute">${fmtN(sg.m * COSTS.seg[sg.t].eur[0] / 1000, 0)}–${fmtN(sg.m * COSTS.seg[sg.t].eur[1] / 1000, 0)} k€</span></div>`).join('')}` : '';
+  drawer(`<div class="head"><button class="x" onclick="closeDrawer()">×</button><h2>${TECH[pr.techno]?.ico || ''} ${esc(pr.nom)}</h2>
+      <div class="sub">${esc(pr.commune || '')}${pr.societe ? ' · ' + esc(pr.societe) : ''}${pr.commune || pr.societe ? ' · ' : ''}${fmtN(pr.lat, 5)}, ${fmtN(pr.lon, 5)}</div>
       <div style="margin-top:6px"><span class="tag" style="background:${pr.user ? '#7048e8' : '#1F3864'}">${pr.user ? 'Mon projet' : 'Projet'}</span> <span class="tag" style="background:#667085">${fmtN(pr.puissance_mw, 2)} MW</span></div></div>
     <div class="content">
-      ${pr.user ? `<div class="h5">Paramètres</div><div class="kv"><span>Nom</span><span><input type="text" value="${esc(pr.nom)}" onchange="editProject('${pr.id}','nom',this.value)"></span></div>
-        <div class="kv"><span>Puissance (MW)</span><span><input type="number" step="0.1" min="0.1" value="${pr.puissance_mw}" onchange="editProject('${pr.id}','puissance_mw',parseFloat(this.value))"></span></div>` : `
-        <div class="kv"><span>Parcelle</span><span>${esc(pr.parcelle || '—')}</span></div>
-        <div class="kv"><span>Surface · zonage</span><span>${fmtN(pr.surface_m2, 0, ' m²')} · ${esc(pr.zonage || '—')}</span></div>
-        <div class="kv"><span>Poste source</span><span>${esc(pr.poste_source || '—')}</span></div>
-        <div class="kv"><span>Statut</span><span>${esc(pr.statut || '—')}</span></div>`}
+      <div class="step done"><b><i>1</i> Installation</b>${install}</div>
+      <div class="step ${r ? 'done' : ''}"><b><i>2</i> Raccordement au réseau</b>
+        <button class="btn primary" onclick="proposeConnections('${pr.id}')">${P && P.opts ? 'Recalculer les raccordements' : 'Proposer des raccordements'}</button>
+        <button class="btn" onclick="startDraw('${pr.id}')">Tracer le raccordement moi-même</button>${optsHtml}${raccHtml}</div>
+      <div class="step"><b><i>3</i> Coût de raccordement</b>${r ? costCard(pr, r) : '<div class="mute" style="margin-top:4px">Il manque un tracé de raccordement : proposez-en un ou tracez-le.</div>'}</div>
       ${hasSims ? `<div class="h5">Simulations Enedis</div>${simTable(pr.simulations)}${simCostBox(pr)}` : ''}
       ${pr.conclusion ? `<div class="h5">Conclusion</div><div>${esc(pr.conclusion)}</div>` : ''}
       ${ctx.length ? `<div class="h5">Contexte réseau (Caparéseau)</div><table class="t"><tr><th>Poste</th><th>Dist.</th><th>Réservé</th><th>File</th><th>Dispo</th></tr>${ctx.map((c) => `<tr><td>${esc(c.poste)}${c.remarque ? `<br><span class="mute">${esc(c.remarque)}</span>` : ''}</td><td>${fmt(c.dist_km, ' km')}</td><td>${fmt(c.cr)}</td><td>${fmt(c.fa)}</td><td>${fmt(c.na)}</td></tr>`).join('')}</table>` : ''}
-      <details ${hasSims ? '' : 'open'} style="margin-top:10px"><summary class="h5" style="cursor:pointer;display:inline">Estimation automatique de la carte</summary>
-        <div class="${ok ? 'okbox' : 'badbox'}" style="margin-top:6px">${ct.best ? `Poste géolocalisé le plus proche : <b>${esc(ct.best.p.n)}</b> à ${fmtN(ct.best.d, 1)} km — ${ct.best.p.na === null ? 'capacité inconnue' : `${fmtN(ct.best.p.na, 1)} MW disponibles (${ok ? 'suffisant' : 'insuffisant'} pour ${fmtN(ct.P, 1)} MW)`}, file d'attente ${fmtN(ct.best.p.fa, 1)} MW.<br>
-          Raccordement estimé ≤ <b>${fmtN(ct.hi, 0)} k€</b> <span class="mute">(fixe ${COST.fixed / 1000} k€ + quote-part ${fmtN(ct.qpK, 0)} k€ + ${fmtN(ct.best.d, 1)} km × ${COST.cable} €/m ; borne haute, liaison dédiée au poste ; quote-part due seulement dans le S3REnR)</span>` : 'Aucun poste connu.'}</div>
-        <div class="mute" style="font-size:11px;margin:4px 0">Limite : seuls ${postesData.length} postes sur environ 3 100 publiés par Caparéseau ont des coordonnées — le poste source réel peut être plus proche que celui listé.</div>
-        <table class="t"><tr><th>5 postes géolocalisés les plus proches</th><th>Dist.</th><th>Dispo MW</th><th>File MW</th><th>QP €/kW</th></tr>${near}</table></details>
-      ${(pr.prochaines_etapes || []).length ? `<div class="h5">Prochaines étapes</div><ul style="margin:2px 0 0 18px;padding:0">${pr.prochaines_etapes.map((s) => `<li>${esc(s)}</li>`).join('')}</ul>` : ''}
+      <details style="margin-top:10px"><summary class="h5" style="cursor:pointer;display:inline">Postes géolocalisés les plus proches</summary>
+        <table class="t"><tr><th>Poste</th><th>Dist.</th><th>Inj. MW</th><th>Sout. MW</th><th>QP €/kW</th></tr>${nearestPostes(pr.lat, pr.lon, 6).map((n) => `<tr><td><a href="#" onclick="showPoste(${n.i});return false">${esc(n.p.n)}</a></td><td>${fmtN(n.d, 1)} km</td><td>${fmtN(posteHead(n.p, 'inj'), 1)}</td><td>${fmtN(posteHead(n.p, 'sout'), 1)}</td><td>${fmtN(n.p.qp, 1)}</td></tr>`).join('')}</table>
+        <div class="mute" style="font-size:11px;margin-top:3px">${postesData.length} postes sur environ 3 100 publiés par Caparéseau sont placés, dont ${postesData.filter((x) => x.ap).length} à position déduite : le poste réel peut manquer ou être décalé.</div></details>
+      ${(pr.prochaines_etapes || []).length ? `<div class="h5">Prochaines étapes</div><ul style="margin:2px 0 0 18px;padding:0">${pr.prochaines_etapes.map((x) => `<li>${esc(x)}</li>`).join('')}</ul>` : ''}
       ${pr.source_url ? `<a class="btn" style="display:inline-block;text-decoration:none" href="${esc(pr.source_url)}" target="_blank" rel="noopener">${pr.source === 'compte-enedis' ? 'Compte Enedis →' : 'Note source (Drive) →'}</a>` : ''}
       ${pr.user ? `<button class="btn" onclick="deleteProject('${pr.id}')">Supprimer</button>` : ''}
     </div>`);
 }
+// création : placer le point de livraison, puis nommer le projet
 function createProjectAt(la, lo) {
   state.creating = false; map.getContainer().style.cursor = ''; $('#btnNew').classList.remove('active'); $('#hint').style.display = 'none';
-  const pr = { id: 'u' + Date.now(), user: true, nom: 'Nouveau projet', lat: +la.toFixed(6), lon: +lo.toFixed(6), puissance_mw: 3, commune: '', statut: 'Projet créé sur la carte', created: new Date().toISOString().slice(0, 10) };
-  projects.push(pr); saveUserProjects(); drawProjects(); renderProjectsList(); showProject(pr.id);
+  $('#modalBox').innerHTML = `<h3>Nommer le projet</h3><label class="mute" style="font-size:11.5px">Nom du projet</label>
+    <input type="text" id="mName" value="Nouveau projet" style="margin:4px 0 2px">
+    <div class="mute" style="font-size:11px">Point placé à ${fmtN(la, 5)}, ${fmtN(lo, 5)}</div>
+    <div style="display:flex;gap:4px;flex-wrap:wrap;margin:10px 0 4px">${Object.entries(TECH).map(([k, t]) => `<span class="chip ${k === 'bess' ? 'on' : ''}" data-t="${k}" style="cursor:pointer">${t.ico} ${t.lbl}</span>`).join('')}</div>
+    <div class="kv"><span>Puissance (MW)</span><span><input type="number" id="mP" step="0.1" min="0.1" value="2.5" style="width:80px"></span></div>
+    <div style="text-align:right;margin-top:10px"><button class="btn" id="mCancel">Annuler</button><button class="btn primary" id="mOk">Créer le projet</button></div>`;
+  $('#modal').style.display = 'flex'; $('#mName').select();
+  let techno = 'bess';
+  $$('#modalBox .chip').forEach((c) => c.addEventListener('click', () => { techno = c.dataset.t; $$('#modalBox .chip').forEach((x) => x.classList.toggle('on', x === c)); }));
+  const close = () => { $('#modal').style.display = 'none'; };
+  $('#mCancel').onclick = close;
+  const ok = () => {
+    close();
+    const pr = { id: 'u' + Date.now(), user: true, nom: $('#mName').value.trim() || 'Nouveau projet', techno, lat: +la.toFixed(6), lon: +lo.toFixed(6),
+      puissance_mw: parseFloat($('#mP').value) || 2.5, commune: '', statut: 'Projet créé sur la carte', created: new Date().toISOString().slice(0, 10) };
+    projects.push(pr); saveUserProjects(); drawProjects(); renderProjectsList(); showProject(pr.id);
+  };
+  $('#mOk').onclick = ok; $('#mName').onkeydown = (e) => { if (e.key === 'Enter') ok(); };
 }
-function editProject(id, k, v) { const p = projects.find((x) => x.id === id); if (!p) return; p[k] = v; saveUserProjects(); drawProjects(); renderProjectsList(); showProject(id); }
-function deleteProject(id) { projects = projects.filter((p) => p.id !== id); saveUserProjects(); drawProjects(); renderProjectsList(); closeDrawer(); }
+function editProject(id, k, v) {
+  const p = projects.find((x) => x.id === id); if (!p) return; p[k] = v; delete p.inj; delete p.sout;
+  if (proposals[id] && proposals[id].opts) proposals[id].opts.forEach((o) => { o.cost = costOf(p, o); });
+  saveUserProjects(); drawProjects(); renderProjectsList(); showProject(id);
+}
+function deleteProject(id) { projects = projects.filter((p) => p.id !== id); delete raccStore[id]; saveRacc(); clearRoute(); saveUserProjects(); drawProjects(); renderProjectsList(); closeDrawer(); }
 
 // =============================================================== tiroir
 function drawer(html) { const d = $('#drawer'); d.innerHTML = html; d.classList.add('open'); d.scrollTop = 0; }
-function closeDrawer() { $('#drawer').classList.remove('open'); }
+function closeDrawer() { $('#drawer').classList.remove('open'); clearRoute(); drawEnvLinks(null); }
 function zoomTo(la, lo, z) { map.flyTo([la, lo], z); }
+
+// =============================================================== recherche : postes, projets, adresses (Base Adresse Nationale)
+const normTxt = (t) => String(t || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toUpperCase().replace(/[^A-Z0-9]+/g, ' ').trim();
+let searchItems = [], searchSel = -1, searchMarker = null;
+async function runSearch(q) {
+  const n = normTxt(q);
+  if (n.length < 2) { $('#searchRes').classList.remove('open'); return; }
+  const loc = [
+    ...postesData.map((p, i) => ({ t: 'poste', lbl: p.n, sub: 'Poste · ' + (p.s3 || ''), go: () => { zoomTo(p.la, p.lo, 12); showPoste(i); }, k: normTxt(p.n) })),
+    ...projects.map((p) => ({ t: 'projet', lbl: p.nom, sub: 'Projet', go: () => showProject(p.id, true), k: normTxt(p.nom + ' ' + (p.commune || '')) })),
+  ].filter((x) => x.k.includes(n)).sort((a, b) => a.k.indexOf(n) - b.k.indexOf(n)).slice(0, 6);
+  renderSearch(loc);
+  if (n.length >= 3) {
+    try {
+      const j = await fetch(`https://api-adresse.data.gouv.fr/search/?q=${encodeURIComponent(q)}&limit=5`).then((r) => r.json());
+      if (normTxt($('#q').value) !== n) return;            // la saisie a changé entre-temps
+      renderSearch([...loc, ...(j.features || []).map((f) => ({ t: 'adresse', lbl: f.properties.label, sub: f.properties.type === 'municipality' ? 'Commune' : 'Adresse',
+        go: () => goAddress(f.geometry.coordinates[1], f.geometry.coordinates[0], f.properties.label, f.properties.type === 'municipality' ? 13 : 16) }))]);
+    } catch (e) { /* BAN indisponible : résultats locaux seulement */ }
+  }
+}
+function renderSearch(items) {
+  searchItems = items; searchSel = -1;
+  const ico = { poste: '🔌', projet: '📁', adresse: '📍' };
+  $('#searchRes').innerHTML = items.length ? items.map((x, k) => `<div data-k="${k}">${ico[x.t]} ${esc(x.lbl)}<small>${esc(x.sub)}</small></div>`).join('') : '<div class="mute">Aucun résultat</div>';
+  $('#searchRes').classList.add('open');
+  $$('#searchRes div[data-k]').forEach((d) => d.addEventListener('mousedown', (e) => { e.preventDefault(); pickSearch(+d.dataset.k); }));
+}
+function pickSearch(k) { const x = searchItems[k]; if (!x) return; $('#searchRes').classList.remove('open'); $('#q').blur(); x.go(); }
+function goAddress(la, lo, label, z) {
+  map.flyTo([la, lo], z);
+  if (searchMarker) map.removeLayer(searchMarker);
+  searchMarker = L.marker([la, lo], { pane: 'projPane' }).addTo(map)
+    .bindPopup(`<b>${esc(label)}</b><br><button class="btn primary" onclick="map.closePopup();createProjectAt(${la},${lo})">Créer un projet ici</button>`).openPopup();
+}
+function showEvaluation() {
+  const e = evaluation;
+  if (!e) { drawer(`<div class="head"><button class="x" onclick="closeDrawer()">×</button><h2>📊 Évaluation du modèle</h2></div><div class="content"><div class="mute">Pas encore de comparaison (lancer ./update.sh simulations).</div></div>`); return; }
+  const pc = (o) => (o && o.n ? `<b>${o.ok}/${o.n}</b> <span class="mute">(${Math.round(100 * o.ok / o.n)} %)</span>` : '—');
+  drawer(`<div class="head"><button class="x" onclick="closeDrawer()">×</button><h2>📊 Évaluation du modèle</h2>
+      <div class="sub">Confrontation de la carte à ${e.n_simulations} simulations de raccordement Enedis réelles (dont ${e.n_production} en injection)</div></div>
+    <div class="content">
+      <div class="h5">Le poste prédit-il la réponse d'Enedis ?</div>
+      <div class="kv"><span>Vue « Capacité sans travaux »</span><span>${pc(e.verdict_sans_travaux)}</span></div>
+      <div class="kv"><span>Vue « Capacité restante S3REnR »</span><span>${pc(e.verdict_restante)}</span></div>
+      <div class="kv"><span>Soutirage : marge transfo estimée</span><span>${pc(e.soutirage)}</span></div>
+      <div class="h5">Le bon poste est-il trouvé ?</div>
+      <div class="kv"><span>Poste le plus proche = poste d'Enedis</span><span>${pc(e.meme_poste)}</span></div>
+      <div class="h5">Distance au réseau</div>
+      <div class="kv"><span>Longueur Enedis ≈ distance HTA de la carte (± 50 m)</span><span>${pc({ ok: e.longueur.a_50m, n: e.longueur.n })}</span></div>
+      <div class="kv"><span>Écart médian</span><span>${fmtN(e.longueur.mediane_m, 0, ' m')}</span></div>
+      <div class="vhelp" style="margin-top:10px"><p><b>Lecture.</b> La vue « sans travaux » est la plus fiable pour l'injection. Le poste le plus proche n'est le poste réel d'Enedis que dans ${e.meme_poste.n ? Math.round(100 * e.meme_poste.ok / e.meme_poste.n) : '?'} % des cas : vérifier avec une simulation Enedis avant de s'engager.</p>
+      <p class="mute">Échantillon réduit (projets Bretagne, Creuse, Haute-Saône, Haute-Garonne) : indicatif.</p></div>
+    </div>`);
+}
 
 // =============================================================== coffre chiffré (mode en ligne)
 // Format de vault.bin : "BV1" | itérations PBKDF2 (4 octets, big-endian) | sel (16) | IV (12) | AES-256-GCM(gzip(JSON{nom: base64}))
@@ -626,10 +1162,11 @@ async function loadSites() {
 async function loadAll() {
   initMap(); renderLegend();
   const j = getJSON;
-  const [postes, meta, prod, conso, sims] = await Promise.all([j('grid/postes.json'), j('grid/meta.json'), j('grid/prod_communes.json'), j('grid/conso_communes.json'), j('private/simulations.json')]);
-  postesData = postes || []; postesVersion = meta && meta.postes_version;
+  const [postes, meta, prod, conso, sims, ev, env] = await Promise.all([j('grid/postes.json'), j('grid/meta.json'), j('grid/prod_communes.json'), j('grid/conso_communes.json'), j('private/simulations.json'), j('grid/evaluation.json'), j('grid/projets_env.json')]);
+  postesData = postes || []; postesVersion = meta && meta.postes_version; evaluation = ev;
   await loadTiles();
-  drawPostes(); posteGroup.addTo(map);
+  drawPostes(); posteGroup.addTo(map); renderTimeline();
+  envRows = env || []; assignEnv(); drawEnv(); if (!envRows.length) $('#L_env').disabled = true;
   if (prod) drawProd(prod); if (conso) drawConso(conso);
   if (!prod) $('#L_prod').disabled = true; if (!conso) $('#L_conso').disabled = true;
   projects = [...((sims && sims.projets) || []).map((p) => ({ ...p, source_url: sims.sources && sims.sources[p.source] })), ...loadUserProjects()];
@@ -641,10 +1178,28 @@ async function loadAll() {
 // =============================================================== événements
 $('#layersHead').addEventListener('click', () => { $('#layers').classList.toggle('collapsed'); $('#chev').textContent = $('#layers').classList.contains('collapsed') ? '▸' : '▾'; });
 $$('input[name=view]').forEach((r) => r.addEventListener('change', () => { state.view = r.value; renderLegend(); refreshLines(); restylePostes(); }));
+$$('input[name=dir]').forEach((r) => r.addEventListener('change', () => {
+  state.dir = r.value;
+  $$('label[data-inj]').forEach((l) => { l.classList.toggle('dis', state.dir === 'sout'); l.querySelector('input').disabled = state.dir === 'sout'; });
+  if (state.dir === 'sout' && INJ_ONLY.includes(state.view)) { state.view = 'transfo'; $('input[name=view][value=transfo]').checked = true; }
+  renderLegend(); refreshLines(); restylePostes();
+}));
+$('#q').addEventListener('input', (e) => { clearTimeout(runSearch.t); runSearch.t = setTimeout(() => runSearch(e.target.value), 220); });
+$('#q').addEventListener('keydown', (e) => {
+  const n = searchItems.length;
+  if (e.key === 'ArrowDown' || e.key === 'ArrowUp') { e.preventDefault(); searchSel = (searchSel + (e.key === 'ArrowDown' ? 1 : -1) + n) % n; $$('#searchRes div[data-k]').forEach((d, k) => d.classList.toggle('sel', k === searchSel)); }
+  else if (e.key === 'Enter') pickSearch(searchSel >= 0 ? searchSel : 0);
+  else if (e.key === 'Escape') { $('#searchRes').classList.remove('open'); e.target.blur(); }
+});
+$('#q').addEventListener('blur', () => setTimeout(() => $('#searchRes').classList.remove('open'), 150));
+$('#q').addEventListener('focus', (e) => { if (e.target.value) runSearch(e.target.value); });
+$('#btnEval').addEventListener('click', showEvaluation);
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && state.drawing) finishDraw(); });
 $('#queueOn').addEventListener('change', (e) => { state.queue = e.target.checked; refreshLines(); restylePostes(); });
 ['aerien', 'souterrain'].forEach((k) => $('#L_' + k).addEventListener('change', refreshLines));
 const toggle = (id, layer) => $('#' + id).addEventListener('change', (e) => (e.target.checked ? layer().addTo(map) : map.removeLayer(layer())));
 toggle('L_postes', () => posteGroup); toggle('L_sites', () => siteGroup); toggle('L_ent', () => entGroup); toggle('L_met', () => metGroup);
+toggle('L_env', () => envGroup); $('#envRecent').addEventListener('change', drawEnv);
 toggle('L_prod', () => prodGroup); toggle('L_conso', () => consoGroup); toggle('L_proj', () => projGroup); toggle('L_htb', () => htbLayer || L.layerGroup());
 $('#fSitesToggle').addEventListener('click', (e) => { e.preventDefault(); $('#fSites').classList.toggle('open'); });
 $('#fScore').addEventListener('input', (e) => { sf.score = +e.target.value; $('#fScoreV').textContent = sf.score; drawSites(); });
@@ -655,7 +1210,7 @@ $('#btnProjects').addEventListener('click', () => { $('#projects').classList.tog
 $('#btnNew').addEventListener('click', () => {
   state.creating = !state.creating; $('#btnNew').classList.toggle('active', state.creating);
   map.getContainer().style.cursor = state.creating ? 'crosshair' : '';
-  const h = $('#hint'); h.textContent = 'Cliquez sur la carte pour placer le projet'; h.style.display = state.creating ? 'block' : 'none';
+  const h = $('#hint'); h.textContent = 'Cliquez sur la carte pour placer le point de livraison du projet'; h.style.display = state.creating ? 'block' : 'none';
 });
 $('#btnBase').addEventListener('click', () => {
   state.base = state.base === 'gray' ? 'color' : 'gray';
